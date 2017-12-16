@@ -30,16 +30,17 @@ Aircraft::Aircraft(Type type, const TextureHolder& textures, const FontHolder& f
 	, mIsFiring(false)
 	, mIsLaunchingMissile(false)
 	, mShowExplosion(true)
-	, mPlayedExplosionSound(false)
+	, mExplosionBegan(false)
 	, mSpawnedPickup(false)
+	, mPickupsEnabled(true)
 	, mFireRateLevel(1)
-	, mSpreadLevel(3)
-	, mMissileAmmo(100)
+	, mSpreadLevel(1)
+	, mMissileAmmo(2)
 	, mDropPickupCommand()
 	, mTravelledDistance(0.f)
 	, mDirectionIndex(0)
-	, mHealthDisplay(nullptr)
 	, mMissileDisplay(nullptr)
+	, mIdentifier(0)
 {
 	mExplosion.setFrameSize(sf::Vector2i(256, 256));
 	mExplosion.setNumFrames(16);
@@ -81,12 +82,27 @@ Aircraft::Aircraft(Type type, const TextureHolder& textures, const FontHolder& f
 	updateTexts();
 }
 
+int Aircraft::getMissileAmmo() const
+{
+	return mMissileAmmo;
+}
+
+void Aircraft::setMissileAmmo(int ammo)
+{
+	mMissileAmmo = ammo;
+}
+
 void Aircraft::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const
 {
 	if (isDestroyed() && mShowExplosion)
 		target.draw(mExplosion, states);
 	else
 		target.draw(mSprite, states);
+}
+
+void Aircraft::disablePickups()
+{
+	mPickupsEnabled = false;
 }
 
 void Aircraft::updateCurrent(sf::Time dt, CommandQueue& commands)
@@ -102,12 +118,29 @@ void Aircraft::updateCurrent(sf::Time dt, CommandQueue& commands)
 		mExplosion.update(dt);
 
 		// Play explosion sound only once
-		if (!mPlayedExplosionSound)
+		if (!mExplosionBegan)
 		{
 			SoundEffect::ID soundEffect = (randomInt(2) == 0) ? SoundEffect::Explosion1 : SoundEffect::Explosion2;
 			playLocalSound(commands, soundEffect);
 
-			mPlayedExplosionSound = true;
+			// Emit network game action for enemy explosions
+			if (!isAllied())
+			{
+				sf::Vector2f position = getWorldPosition();
+
+				/*
+				Command command;
+				command.category = Category::Network;
+				command.action = derivedAction<NetworkNode>([position](NetworkNode& node, sf::Time)
+				{
+					node.notifyGameAction(GameActions::EnemyExplode, position);
+				});
+
+				commands.push(command);
+				*/
+			}
+
+			mExplosionBegan = true;
 		}
 		return;
 	}
@@ -200,6 +233,16 @@ void Aircraft::playLocalSound(CommandQueue& commands, SoundEffect::ID effect)
 	});
 
 	commands.push(command);
+}
+
+int	Aircraft::getIdentifier()
+{
+	return mIdentifier;
+}
+
+void Aircraft::setIdentifier(int identifier)
+{
+	mIdentifier = identifier;
 }
 
 void Aircraft::updateMovementPattern(sf::Time dt)

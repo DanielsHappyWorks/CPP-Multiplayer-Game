@@ -34,11 +34,11 @@ private:
 	sf::RenderWindow		mWindow;
 	TextureHolder			mTextures;
 	FontHolder				mFonts;
-	Player					mPlayer;
-
 	MusicPlayer				mMusic;
 	SoundPlayer				mSounds;
 
+	KeyBinding				mKeyBinding1;
+	KeyBinding				mKeyBinding2;
 	StateStack				mStateStack;
 
 	sf::Text				mStatisticsText;

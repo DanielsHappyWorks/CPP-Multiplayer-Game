@@ -8,7 +8,7 @@
 #include <SFML/Graphics/View.hpp>
 
 
-GameOverState::GameOverState(StateStack& stack, Context context)
+GameOverState::GameOverState(StateStack& stack, Context context, const std::string& text)
 	: State(stack, context)
 	, mGameOverText()
 	, mElapsedTime(sf::Time::Zero)
@@ -17,11 +17,7 @@ GameOverState::GameOverState(StateStack& stack, Context context)
 	sf::Vector2f windowSize(context.window->getSize());
 
 	mGameOverText.setFont(font);
-	if (context.player->getMissionStatus() == Player::MissionFailure)
-		mGameOverText.setString("Mission failed!");
-	else
-		mGameOverText.setString("Mission successful!");
-
+	mGameOverText.setString(text);
 	mGameOverText.setCharacterSize(70);
 	centerOrigin(mGameOverText);
 	mGameOverText.setPosition(0.5f * windowSize.x, 0.4f * windowSize.y);
