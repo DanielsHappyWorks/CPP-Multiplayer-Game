@@ -180,6 +180,9 @@ void World::loadTextures()
 	mTextures.load(Textures::Explosion, "Media/Textures/Explosion.png");
 	mTextures.load(Textures::Particle, "Media/Textures/Particle.png");
 	mTextures.load(Textures::FinishLine, "Media/Textures/FinishLine.png");
+	mTextures.load(Textures::smallPlatform, "Media/Textures/smallPlatform.png");
+	mTextures.load(Textures::largePlatform, "Media/Textures/largePlatform.png");
+
 }
 
 void World::adaptPlayerPosition()
@@ -359,16 +362,16 @@ void World::addPlatforms()
 {
 
 	// Add enemies to the spawn point container
-	addPlatform(30.f, 30.f,1.f,1.f);
-	addPlatform(0.f, 600.f, 1.f, 1.f);
-	addPlatform(+100.f, 100.f, 1.f, 1.f);
+	addPlatform(520.f, 600.f, Platform::largePlatform);
+	addPlatform(200.f, 450.f, Platform::smallPlatform);
+	addPlatform(820.f, 450.f,Platform::smallPlatform);
+	addPlatform(510.f, 320.f, Platform::smallPlatform);
 }
 
-void World::addPlatform(float x, float y, float xScale, float yScale)
+void World::addPlatform(float x, float y, Platform::Type type)
 {
-	std::unique_ptr<Platform> plat(new Platform(mTextures));
+	std::unique_ptr<Platform> plat(new Platform(type, mTextures));
 	plat->setPosition(x, y);
-	//plat->setScale(xScale, yScale);
 
 	mSceneLayers[UpperAir]->attachChild(std::move(plat));
 }

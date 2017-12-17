@@ -2,6 +2,7 @@
 #include "Aircraft.hpp"
 #include "Projectile.hpp"
 #include "Pickup.hpp"
+#include "Platform.hpp"
 #include "Particle.hpp"
 
 // For std::bind() placeholders _1, _2, ...
@@ -85,6 +86,18 @@ std::vector<PickupData> initializePickupData()
 	data[Pickup::FireRate].texture = Textures::Entities;
 	data[Pickup::FireRate].textureRect = sf::IntRect(120, 64, 40, 40);
 	data[Pickup::FireRate].action = std::bind(&Aircraft::increaseFireRate, _1);
+
+	return data;
+}
+
+std::vector<PlatformData> initializePlatformData()
+{
+	std::vector<PlatformData> data(Platform::TypeCount);
+
+	data[Platform::smallPlatform].texture = Textures::smallPlatform;
+	
+	data[Platform::largePlatform].texture = Textures::largePlatform;
+
 
 	return data;
 }

@@ -8,7 +8,15 @@
 class Platform : public Entity
 {
 public:
-	Platform(const TextureHolder& textures);
+	enum Type
+	{
+		smallPlatform,
+		largePlatform,
+		TypeCount
+	};
+
+public:
+	Platform(Type type, const TextureHolder& textures);
 	virtual unsigned int	getCategory() const;
 	virtual sf::FloatRect	getBoundingRect() const;
 
@@ -16,5 +24,6 @@ protected:
 	virtual void			drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
 
 private:
+	Type 					mType;
 	sf::Sprite				mSprite;
 };

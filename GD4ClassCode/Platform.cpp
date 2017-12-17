@@ -7,9 +7,15 @@
 
 #include <SFML/Graphics/RenderTarget.hpp>
 
-Platform::Platform(const TextureHolder& textures)
+namespace
+{
+	const std::vector<PlatformData> Table = initializePlatformData();
+}
+
+Platform::Platform(Type type, const TextureHolder& textures)
 	: Entity(1)
-	, mSprite(textures.get(Textures::FinishLine))
+	, mType(type)
+	, mSprite(textures.get(Table[type].texture))
 {
 	centerOrigin(mSprite);
 }

@@ -19,6 +19,8 @@ namespace Textures
 		Explosion,
 		Particle,
 		FinishLine,
+		largePlatform,
+		smallPlatform,
 	};
 }
 

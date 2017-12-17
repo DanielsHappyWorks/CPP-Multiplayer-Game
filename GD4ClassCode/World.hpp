@@ -7,6 +7,7 @@
 #include "CommandQueue.hpp"
 #include "Command.hpp"
 #include "Pickup.hpp"
+#include "Platform.hpp"
 #include "BloomEffect.hpp"
 #include "SoundPlayer.hpp"
 
@@ -40,7 +41,7 @@ public:
 	void setCurrentBattleFieldPosition(float lineY);
 	void setWorldHeight(float height);
 
-	void addPlatform(float x, float y, float xScale, float yScale);
+	void addPlatform(float x, float y, Platform::Type type);
 	void sortEnemies();
 
 	bool hasAlivePlayer() const;

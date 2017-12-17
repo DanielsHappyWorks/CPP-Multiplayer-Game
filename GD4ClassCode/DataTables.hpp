@@ -47,6 +47,11 @@ struct PickupData
 	sf::IntRect textureRect;
 };
 
+struct PlatformData
+{
+	Textures::ID texture;
+};
+
 struct ParticleData
 {
 	sf::Color						color;
@@ -56,4 +61,5 @@ struct ParticleData
 std::vector<AircraftData> initializeAircraftData();
 std::vector<ProjectileData> initializeProjectileData();
 std::vector<PickupData> initializePickupData();
+std::vector<PlatformData> initializePlatformData();
 std::vector<ParticleData> initializeParticleData();
