@@ -14,6 +14,8 @@ public:
 		largePlatform,
 		TypeCount
 	};
+public:
+	Type 					mType;
 
 public:
 	Platform(Type type, const TextureHolder& textures);
@@ -24,6 +26,5 @@ protected:
 	virtual void			drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
 
 private:
-	Type 					mType;
 	sf::Sprite				mSprite;
 };

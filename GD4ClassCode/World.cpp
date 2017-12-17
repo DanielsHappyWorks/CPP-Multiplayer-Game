@@ -41,6 +41,27 @@ World::World(sf::RenderTarget& outputTarget, FontHolder& fonts, SoundPlayer& sou
 	mWorldView.setCenter(mSpawnPosition);
 }
 
+bool matchesCategories(SceneNode::Pair& colliders, Category::Type type1, Category::Type type2)
+{
+	unsigned int category1 = colliders.first->getCategory();
+	unsigned int category2 = colliders.second->getCategory();
+
+	// Make sure first pair entry has category type1 and second has type2
+	if (type1 & category1 && type2 & category2)
+	{
+		return true;
+	}
+	else if (type1 & category2 && type2 & category1)
+	{
+		std::swap(colliders.first, colliders.second);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 void World::update(sf::Time dt)
 {
 	//reset player velocity
@@ -75,6 +96,9 @@ void World::update(sf::Time dt)
 	// Regular update step, adapt position (correct if outside view)
 	mSceneGraph.update(dt, mCommandQueue);
 	adaptPlayerPosition();
+
+	//handle player collision with platform
+	handleCollisionsPlatform();
 
 	updateSounds();
 }
@@ -122,10 +146,10 @@ void World::removeAircraft(int identifier)
 	}
 }
 
-Aircraft* World::addAircraft(int identifier)
+Aircraft* World::addAircraft(int identifier, float x, float y)
 {
 	std::unique_ptr<Aircraft> player(new Aircraft(Aircraft::Eagle, mTextures, mFonts));
-	player->setPosition(mWorldView.getCenter());
+	player->setPosition(x, y);
 	player->setIdentifier(identifier);
 
 	mPlayerAircrafts.push_back(player.get());
@@ -140,14 +164,6 @@ void World::createPickup(sf::Vector2f position, Pickup::Type type)
 	pickup->setVelocity(0.f, 1.f);
 	mSceneLayers[UpperAir]->attachChild(std::move(pickup));
 }
-
-/*
-bool World::pollGameAction(GameActions::Action& out)
-{
-return mNetworkNode->pollGameAction(out);
-}
-*/
-
 
 void World::setCurrentBattleFieldPosition(float lineY)
 {
@@ -214,27 +230,6 @@ void World::adaptPlayerVelocity()
 	}
 }
 
-bool matchesCategories(SceneNode::Pair& colliders, Category::Type type1, Category::Type type2)
-{
-	unsigned int category1 = colliders.first->getCategory();
-	unsigned int category2 = colliders.second->getCategory();
-
-	// Make sure first pair entry has category type1 and second has type2
-	if (type1 & category1 && type2 & category2)
-	{
-		return true;
-	}
-	else if (type1 & category2 && type2 & category1)
-	{
-		std::swap(colliders.first, colliders.second);
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
 void World::handleCollisions()
 {
 	std::set<SceneNode::Pair> collisionPairs;
@@ -242,14 +237,43 @@ void World::handleCollisions()
 
 	FOREACH(SceneNode::Pair pair, collisionPairs)
 	{
-		if (matchesCategories(pair, Category::PlayerAircraft, Category::EnemyAircraft))
+		if (matchesCategories(pair, Category::PlayerAircraft, Category::PlayerAircraft))
 		{
-			auto& player = static_cast<Aircraft&>(*pair.first);
-			auto& enemy = static_cast<Aircraft&>(*pair.second);
+			auto& player1 = static_cast<Aircraft&>(*pair.first);
+			auto& player2 = static_cast<Aircraft&>(*pair.second);
 
 			// Collision: Player damage = enemy's remaining HP
-			player.damage(enemy.getHitpoints());
-			enemy.destroy();
+			float xVelocity1 = 0;
+			float xVelocity2 = 0;
+			if (fabs(player1.getVelocity().x) > fabs(player2.getVelocity().x)) {
+				xVelocity1 = 100 * player2.getVelocity().x;
+				xVelocity2 = 25 * player1.getVelocity().x;
+			}
+			else if (fabs(player1.getVelocity().x) < fabs(player2.getVelocity().x)) {
+				xVelocity2 = 100 * player1.getVelocity().x;
+				xVelocity1 = 25 * player2.getVelocity().x;
+			}
+			else {
+				xVelocity1 = 50 * player2.getVelocity().x;
+				xVelocity2 = 50 * player1.getVelocity().x;
+			}
+
+			float yVelocity1 = 0;
+			float yVelocity2 = 0;
+			if (fabs(player1.getVelocity().y) > fabs(player2.getVelocity().y)) {
+				yVelocity1 = -25 * player1.getVelocity().y;
+			}
+			else if (fabs(player1.getVelocity().y) < fabs(player2.getVelocity().y)) {
+				yVelocity2 = -25 * player2.getVelocity().y;
+			}
+			else
+			{
+				xVelocity1 = 10 * player2.getVelocity().x;
+				xVelocity2 = 10 * player1.getVelocity().x;
+			}
+
+			player1.setVelocity(xVelocity1, yVelocity1);
+			player2.setVelocity(xVelocity2, yVelocity2);
 		}
 
 		else if (matchesCategories(pair, Category::PlayerAircraft, Category::Pickup))
@@ -273,13 +297,31 @@ void World::handleCollisions()
 			aircraft.damage(projectile.getDamage());
 			projectile.destroy();
 		}
-		else if (matchesCategories(pair, Category::PlayerAircraft, Category::Platform))
+	}
+}
+
+void World::handleCollisionsPlatform()
+{
+	std::set<SceneNode::Pair> collisionPairs;
+	mSceneGraph.checkSceneCollision(mSceneGraph, collisionPairs);
+	FOREACH(SceneNode::Pair pair, collisionPairs)
+	{
+		if (matchesCategories(pair, Category::PlayerAircraft, Category::Platform))
 		{
 			auto& aircraft = static_cast<Aircraft&>(*pair.first);
-			auto& projectile = static_cast<Platform&>(*pair.second);
+			auto& platform = static_cast<Platform&>(*pair.second);
 
-			// Apply projectile damage to aircraft, destroy projectile
-			aircraft.mIsGrounded = true;
+			//stop player from falling through
+			if (!aircraft.mIsGrounded) {
+				aircraft.setVelocity(aircraft.getVelocity().x, 0);
+				if (platform.mType == Platform::largePlatform) {
+					aircraft.setPosition(aircraft.getPosition().x, platform.getPosition().y - 60);
+				}
+				else {
+					aircraft.setPosition(aircraft.getPosition().x, platform.getPosition().y - 50);
+				}
+				aircraft.mIsGrounded = true;
+			}
 		}
 	}
 }

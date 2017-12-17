@@ -9,8 +9,8 @@ GameState::GameState(StateStack& stack, Context context)
 	, mPlayer(nullptr, 1, context.keys1)
 	, mPlayer2(nullptr, 2, context.keys2)
 {
-	mWorld.addAircraft(1);
-	mWorld.addAircraft(2);
+	mWorld.addAircraft(1, 100.f, 100.f);
+	mWorld.addAircraft(2, 500.f, 100.f);
 	mPlayer.setMissionStatus(Player::MissionRunning);
 	mPlayer2.setMissionStatus(Player::MissionRunning);
 

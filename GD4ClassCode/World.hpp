@@ -36,7 +36,7 @@ public:
 
 	sf::FloatRect getViewBounds() const;
 	CommandQueue& getCommandQueue();
-	Aircraft* addAircraft(int identifier);
+	Aircraft* addAircraft(int identifier, float x, float y);
 	void removeAircraft(int identifier);
 	void setCurrentBattleFieldPosition(float lineY);
 	void setWorldHeight(float height);
@@ -59,6 +59,7 @@ private:
 	void adaptPlayerPosition();
 	void adaptPlayerVelocity();
 	void handleCollisions();
+	void handleCollisionsPlatform();
 	void updateSounds();
 
 	void buildScene();
