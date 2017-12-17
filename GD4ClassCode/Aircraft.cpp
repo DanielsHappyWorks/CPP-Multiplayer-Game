@@ -41,6 +41,7 @@ Aircraft::Aircraft(Type type, const TextureHolder& textures, const FontHolder& f
 	, mDirectionIndex(0)
 	, mMissileDisplay(nullptr)
 	, mIdentifier(0)
+	, mIsGrounded(false)
 {
 	mExplosion.setFrameSize(sf::Vector2i(256, 256));
 	mExplosion.setNumFrames(16);
@@ -202,6 +203,14 @@ void Aircraft::increaseSpread()
 void Aircraft::collectMissiles(unsigned int count)
 {
 	mMissileAmmo += count;
+}
+
+void Aircraft::jump(float vx, float vy)
+{
+	if (mIsGrounded) {
+		this->accelerate(vx, vy);
+		mIsGrounded = false;
+	}
 }
 
 void Aircraft::fire()

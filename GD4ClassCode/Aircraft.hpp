@@ -37,12 +37,15 @@ public:
 	void					collectMissiles(unsigned int count);
 
 	void 					fire();
+	void 					jump(float vx, float vy);
 	void					launchMissile();
 	void					playLocalSound(CommandQueue& commands, SoundEffect::ID effect);
 	int						getIdentifier();
 	void					setIdentifier(int identifier);
 	int						getMissileAmmo() const;
 	void					setMissileAmmo(int ammo);
+
+	bool					mIsGrounded;
 
 
 private:

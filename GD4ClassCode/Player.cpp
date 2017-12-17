@@ -29,6 +29,26 @@ struct AircraftMover
 	int aircraftID;
 };
 
+struct AircraftJumpTrigger
+{
+	AircraftJumpTrigger(float vx, float vy, int identifier)
+		: velocity(vx, vy), aircraftID(identifier)
+	{
+	}
+
+	void operator() (Aircraft& aircraft, sf::Time) const
+	{
+		if (aircraft.getIdentifier() == aircraftID && aircraft.mIsGrounded)
+		{
+			aircraft.accelerate(velocity.x, velocity.y);
+			aircraft.mIsGrounded = false;
+		}	
+	}
+
+	sf::Vector2f velocity;
+	int aircraftID;
+};
+
 struct AircraftFireTrigger
 {
 	AircraftFireTrigger(int identifier)
@@ -82,38 +102,10 @@ void Player::handleEvent(const sf::Event& event, CommandQueue& commands)
 		Action action;
 		if (mKeyBinding && mKeyBinding->checkAction(event.key.code, action) && !isRealtimeAction(action))
 		{
-			// Network connected -> send event over network
-			if (mSocket)
-			{
-			//	sf::Packet packet;
-			//	packet << static_cast<sf::Int32>(Client::PlayerEvent);
-			//	packet << mIdentifier;
-			//	packet << static_cast<sf::Int32>(action);
-				//mSocket->send(packet);
-			}
-
-			// Network disconnected -> local event
-			else
-			{
-				commands.push(mActionBinding[action]);
-			}
+			
+			commands.push(mActionBinding[action]);
 		}
 	}
-	// Realtime change (network connected)
-	/*if ((event.type == sf::Event::KeyPressed || event.type == sf::Event::KeyReleased) && mSocket)
-	{
-		Action action;
-		if (mKeyBinding && mKeyBinding->checkAction(event.key.code, action) && isRealtimeAction(action))
-		{
-			// Send realtime change over network
-			sf::Packet packet;
-			packet << static_cast<sf::Int32>(Client::PlayerRealtimeChange);
-			packet << mIdentifier;
-			packet << static_cast<sf::Int32>(action);
-			packet << (event.type == sf::Event::KeyPressed);
-			mSocket->send(packet);
-		}
-	}*/
 }
 
 bool Player::isLocal() const
@@ -121,20 +113,6 @@ bool Player::isLocal() const
 	// No key binding means this player is remote
 	return mKeyBinding != nullptr;
 }
-
-/*void Player::disableAllRealtimeActions()
-{
-	FOREACH(auto& action, mActionProxies)
-	{
-		sf::Packet packet;
-		packet << static_cast<sf::Int32>(Client::PlayerRealtimeChange);
-		packet << mIdentifier;
-		packet << static_cast<sf::Int32>(action.first);
-		packet << false;
-		mSocket->send(packet);
-	}
-}*/
-
 
 void Player::handleRealtimeInput(CommandQueue& commands)
 {
@@ -146,29 +124,6 @@ void Player::handleRealtimeInput(CommandQueue& commands)
 		FOREACH(Action action, activeActions)
 			commands.push(mActionBinding[action]);
 	}
-}
-
-void Player::handleRealtimeNetworkInput(CommandQueue& commands)
-{
-	if (mSocket && !isLocal())
-	{
-		// Traverse all realtime input proxies. Because this is a networked game, the input isn't handled directly
-		FOREACH(auto pair, mActionProxies)
-		{
-			if (pair.second && isRealtimeAction(pair.first))
-				commands.push(mActionBinding[pair.first]);
-		}
-	}
-}
-
-void Player::handleNetworkEvent(Action action, CommandQueue& commands)
-{
-	commands.push(mActionBinding[action]);
-}
-
-void Player::handleNetworkRealtimeChange(Action action, bool actionEnabled)
-{
-	mActionProxies[action] = actionEnabled;
 }
 
 void Player::setMissionStatus(MissionStatus status)
@@ -185,8 +140,7 @@ void Player::initializeActions()
 {
 	mActionBinding[PlayerAction::MoveLeft].action = derivedAction<Aircraft>(AircraftMover(-1, 0, mIdentifier));
 	mActionBinding[PlayerAction::MoveRight].action = derivedAction<Aircraft>(AircraftMover(+1, 0, mIdentifier));
-	mActionBinding[PlayerAction::MoveUp].action = derivedAction<Aircraft>(AircraftMover(0, -1, mIdentifier));
-	mActionBinding[PlayerAction::MoveDown].action = derivedAction<Aircraft>(AircraftMover(0, +1, mIdentifier));
+	mActionBinding[PlayerAction::MoveUp].action = derivedAction<Aircraft>(AircraftJumpTrigger(0, -7500, mIdentifier));
 	mActionBinding[PlayerAction::Fire].action = derivedAction<Aircraft>(AircraftFireTrigger(mIdentifier));
 	mActionBinding[PlayerAction::LaunchMissile].action = derivedAction<Aircraft>(AircraftMissileTrigger(mIdentifier));
 }

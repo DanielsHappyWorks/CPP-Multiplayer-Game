@@ -145,6 +145,7 @@
     <ClCompile Include="ParticleNode.cpp" />
     <ClCompile Include="PauseState.cpp" />
     <ClCompile Include="Pickup.cpp" />
+    <ClCompile Include="Platform.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PostEffect.cpp" />
     <ClCompile Include="Projectile.cpp" />
@@ -185,6 +186,7 @@
     <ClInclude Include="ParticleNode.hpp" />
     <ClInclude Include="PauseState.hpp" />
     <ClInclude Include="Pickup.hpp" />
+    <ClInclude Include="Platform.hpp" />
     <ClInclude Include="Player.hpp" />
     <ClInclude Include="PostEffect.hpp" />
     <ClInclude Include="Projectile.hpp" />

@@ -40,16 +40,13 @@ public:
 	void setCurrentBattleFieldPosition(float lineY);
 	void setWorldHeight(float height);
 
-	void addEnemy(Aircraft::Type type, float relX, float relY);
+	void addPlatform(float x, float y, float xScale, float yScale);
 	void sortEnemies();
 
 	bool hasAlivePlayer() const;
 	bool hasPlayerReachedEnd() const;
 
-	void setWorldScrollCompensation(float compensation);
-
 	Aircraft* getAircraft(int identifier) const;
-	sf::FloatRect getBattlefieldBounds() const;
 
 	void createPickup(sf::Vector2f position, Pickup::Type type);
 	/*
@@ -64,8 +61,7 @@ private:
 	void updateSounds();
 
 	void buildScene();
-	void addEnemies();
-	void spawnEnemies();
+	void addPlatforms();
 	void destroyEntitiesOutsideView();
 	void guideMissiles();
 
@@ -107,16 +103,12 @@ private:
 
 	sf::FloatRect						mWorldBounds;
 	sf::Vector2f						mSpawnPosition;
-	float								mScrollSpeed;
-	float								mScrollSpeedCompensation;
+	sf::Vector2f						mGravity;
 	std::vector<Aircraft*>				mPlayerAircrafts;
 
 	std::vector<SpawnPoint>				mEnemySpawnPoints;
 	std::vector<Aircraft*>				mActiveEnemies;
 
 	BloomEffect							mBloomEffect;
-
-	bool								mNetworkedWorld;
-	NetworkNode*						mNetworkNode;
 	SpriteNode*							mFinishSprite;
 };

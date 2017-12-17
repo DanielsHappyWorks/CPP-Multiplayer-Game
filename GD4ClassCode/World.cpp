@@ -1,6 +1,7 @@
 #include "World.hpp"
 #include "Projectile.hpp"
 #include "Pickup.hpp"
+#include "Platform.hpp"
 #include "Foreach.hpp"
 #include "TextNode.hpp"
 #include "ParticleNode.hpp"
@@ -23,16 +24,13 @@ World::World(sf::RenderTarget& outputTarget, FontHolder& fonts, SoundPlayer& sou
 	, mSounds(sounds)
 	, mSceneGraph()
 	, mSceneLayers()
-	, mWorldBounds(0.f, 0.f, mWorldView.getSize().x, 5000.f)
+	, mWorldBounds(0.f, 0.f, mWorldView.getSize().x, mWorldView.getSize().y)
 	, mSpawnPosition(mWorldView.getSize().x / 2.f, mWorldBounds.height - mWorldView.getSize().y / 2.f)
-	, mScrollSpeed(-50.f)
-	, mScrollSpeedCompensation(1.f)
 	, mPlayerAircrafts()
 	, mEnemySpawnPoints()
 	, mActiveEnemies()
-	, mNetworkedWorld(networked)
-	, mNetworkNode(nullptr)
 	, mFinishSprite(nullptr)
+	, mGravity(0.f, 250.f)
 {
 	mSceneTexture.create(mTarget.getSize().x, mTarget.getSize().y);
 
@@ -43,18 +41,17 @@ World::World(sf::RenderTarget& outputTarget, FontHolder& fonts, SoundPlayer& sou
 	mWorldView.setCenter(mSpawnPosition);
 }
 
-void World::setWorldScrollCompensation(float compensation)
-{
-	mScrollSpeedCompensation = compensation;
-}
-
 void World::update(sf::Time dt)
 {
-	// Scroll the world, reset player velocity
-	mWorldView.move(0.f, mScrollSpeed * dt.asSeconds() * mScrollSpeedCompensation);
-	
+	//reset player velocity
 	FOREACH(Aircraft* a, mPlayerAircrafts)
+	{
 		a->setVelocity(0.f, 0.f);
+		// Add gravity velocity
+		if (!a->mIsGrounded) {
+			a->accelerate(mGravity);
+		}
+	}
 
 	// Setup commands to destroy entities, and guide missiles
 	destroyEntitiesOutsideView();
@@ -72,9 +69,8 @@ void World::update(sf::Time dt)
 	auto firstToRemove = std::remove_if(mPlayerAircrafts.begin(), mPlayerAircrafts.end(), std::mem_fn(&Aircraft::isMarkedForRemoval));
 	mPlayerAircrafts.erase(firstToRemove, mPlayerAircrafts.end());
 
-	// Remove all destroyed entities, create new ones
+	// Remove all destroyed entities
 	mSceneGraph.removeWrecks();
-	spawnEnemies();
 
 	// Regular update step, adapt position (correct if outside view)
 	mSceneGraph.update(dt, mCommandQueue);
@@ -212,9 +208,6 @@ void World::adaptPlayerVelocity()
 		// If moving diagonally, reduce velocity (to have always same velocity)
 		if (velocity.x != 0.f && velocity.y != 0.f)
 			aircraft->setVelocity(velocity / std::sqrt(2.f));
-
-		// Add scrolling velocity
-		aircraft->accelerate(0.f, mScrollSpeed);
 	}
 }
 
@@ -276,6 +269,14 @@ void World::handleCollisions()
 			// Apply projectile damage to aircraft, destroy projectile
 			aircraft.damage(projectile.getDamage());
 			projectile.destroy();
+		}
+		else if (matchesCategories(pair, Category::PlayerAircraft, Category::Platform))
+		{
+			auto& aircraft = static_cast<Aircraft&>(*pair.first);
+			auto& projectile = static_cast<Platform&>(*pair.second);
+
+			// Apply projectile damage to aircraft, destroy projectile
+			aircraft.mIsGrounded = true;
 		}
 	}
 }
@@ -350,89 +351,26 @@ void World::buildScene()
 	std::unique_ptr<SoundNode> soundNode(new SoundNode(mSounds));
 	mSceneGraph.attachChild(std::move(soundNode));
 
-	// Add network node, if necessary
-	/*if (mNetworkedWorld)
-	{
-		std::unique_ptr<NetworkNode> networkNode(new NetworkNode());
-		mNetworkNode = networkNode.get();
-		mSceneGraph.attachChild(std::move(networkNode));
-	}*/
-
-	// Add enemy aircraft
-	addEnemies();
+	// Add platforms
+	addPlatforms();
 }
 
-void World::addEnemies()
+void World::addPlatforms()
 {
-	if (mNetworkedWorld)
-		return;
 
 	// Add enemies to the spawn point container
-	addEnemy(Aircraft::Raptor, 0.f, 500.f);
-	addEnemy(Aircraft::Raptor, 0.f, 1000.f);
-	addEnemy(Aircraft::Raptor, +100.f, 1150.f);
-	addEnemy(Aircraft::Raptor, -100.f, 1150.f);
-	addEnemy(Aircraft::Avenger, 70.f, 1500.f);
-	addEnemy(Aircraft::Avenger, -70.f, 1500.f);
-	addEnemy(Aircraft::Avenger, -70.f, 1710.f);
-	addEnemy(Aircraft::Avenger, 70.f, 1700.f);
-	addEnemy(Aircraft::Avenger, 30.f, 1850.f);
-	addEnemy(Aircraft::Raptor, 300.f, 2200.f);
-	addEnemy(Aircraft::Raptor, -300.f, 2200.f);
-	addEnemy(Aircraft::Raptor, 0.f, 2200.f);
-	addEnemy(Aircraft::Raptor, 0.f, 2500.f);
-	addEnemy(Aircraft::Avenger, -300.f, 2700.f);
-	addEnemy(Aircraft::Avenger, -300.f, 2700.f);
-	addEnemy(Aircraft::Raptor, 0.f, 3000.f);
-	addEnemy(Aircraft::Raptor, 250.f, 3250.f);
-	addEnemy(Aircraft::Raptor, -250.f, 3250.f);
-	addEnemy(Aircraft::Avenger, 0.f, 3500.f);
-	addEnemy(Aircraft::Avenger, 0.f, 3700.f);
-	addEnemy(Aircraft::Raptor, 0.f, 3800.f);
-	addEnemy(Aircraft::Avenger, 0.f, 4000.f);
-	addEnemy(Aircraft::Avenger, -200.f, 4200.f);
-	addEnemy(Aircraft::Raptor, 200.f, 4200.f);
-	addEnemy(Aircraft::Raptor, 0.f, 4400.f);
-
-
-	// Sort all enemies according to their y value, such that lower enemies are checked first for spawning
-	sortEnemies();
+	addPlatform(30.f, 30.f,1.f,1.f);
+	addPlatform(0.f, 600.f, 1.f, 1.f);
+	addPlatform(+100.f, 100.f, 1.f, 1.f);
 }
 
-void World::sortEnemies()
+void World::addPlatform(float x, float y, float xScale, float yScale)
 {
-	// Sort all enemies according to their y value, such that lower enemies are checked first for spawning
-	std::sort(mEnemySpawnPoints.begin(), mEnemySpawnPoints.end(), [](SpawnPoint lhs, SpawnPoint rhs)
-	{
-		return lhs.y < rhs.y;
-	});
-}
+	std::unique_ptr<Platform> plat(new Platform(mTextures));
+	plat->setPosition(x, y);
+	//plat->setScale(xScale, yScale);
 
-void World::addEnemy(Aircraft::Type type, float relX, float relY)
-{
-	SpawnPoint spawn(type, mSpawnPosition.x + relX, mSpawnPosition.y - relY);
-	mEnemySpawnPoints.push_back(spawn);
-}
-
-void World::spawnEnemies()
-{
-	// Spawn all enemies entering the view area (including distance) this frame
-	while (!mEnemySpawnPoints.empty()
-		&& mEnemySpawnPoints.back().y > getBattlefieldBounds().top)
-	{
-		SpawnPoint spawn = mEnemySpawnPoints.back();
-
-		std::unique_ptr<Aircraft> enemy(new Aircraft(spawn.type, mTextures, mFonts));
-		enemy->setPosition(spawn.x, spawn.y);
-		enemy->setRotation(180.f);
-
-		if (mNetworkedWorld) enemy->disablePickups();
-
-		mSceneLayers[UpperAir]->attachChild(std::move(enemy));
-
-		// Enemy is spawned, remove from the list to spawn
-		mEnemySpawnPoints.pop_back();
-	}
+	mSceneLayers[UpperAir]->attachChild(std::move(plat));
 }
 
 void World::destroyEntitiesOutsideView()
@@ -441,7 +379,7 @@ void World::destroyEntitiesOutsideView()
 	command.category = Category::Projectile | Category::EnemyAircraft;
 	command.action = derivedAction<Entity>([this](Entity& e, sf::Time)
 	{
-		if (!getBattlefieldBounds().intersects(e.getBoundingRect()))
+		if (!getViewBounds().intersects(e.getBoundingRect()))
 			e.remove();
 	});
 
@@ -496,14 +434,4 @@ void World::guideMissiles()
 sf::FloatRect World::getViewBounds() const
 {
 	return sf::FloatRect(mWorldView.getCenter() - mWorldView.getSize() / 2.f, mWorldView.getSize());
-}
-
-sf::FloatRect World::getBattlefieldBounds() const
-{
-	// Return view bounds + some area at top, where enemies spawn
-	sf::FloatRect bounds = getViewBounds();
-	bounds.top -= 100.f;
-	bounds.height += 100.f;
-
-	return bounds;
 }
