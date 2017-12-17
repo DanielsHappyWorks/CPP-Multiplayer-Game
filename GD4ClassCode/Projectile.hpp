@@ -10,13 +10,16 @@ public:
 	enum Type
 	{
 		AlliedBullet,
-		EnemyBullet,
 		Missile,
-		TypeCount
+		TypeCount,
+		PlayerBullet
 	};
 
+public:	
+	int playerID;
+
 public:
-	Projectile(Type type, const TextureHolder& texture);
+	Projectile(Type type, const TextureHolder& texture, int playerID);
 
 	void guideTowards(sf::Vector2f position);
 	bool isGuided() const;

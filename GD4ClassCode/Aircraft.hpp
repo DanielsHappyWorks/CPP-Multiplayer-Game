@@ -46,6 +46,7 @@ public:
 	void					setMissileAmmo(int ammo);
 
 	bool					mIsGrounded;
+	sf::Vector2f			mPreviousPositionOnFire;
 
 
 private:
@@ -55,8 +56,8 @@ private:
 	void					checkPickupDrop(CommandQueue& commands);
 	void					checkProjectileLaunch(sf::Time dt, CommandQueue& commands);
 
-	void					createBullets(SceneNode& node, const TextureHolder& textures) const;
-	void					createProjectile(SceneNode& node, Projectile::Type type, float xOffset, float yOffset, const TextureHolder& textures) const;
+	void					createBullets(SceneNode& node, const TextureHolder& textures);
+	void					createProjectile(SceneNode& node, Projectile::Type type, float xOffset, float yOffset, const TextureHolder& textures);
 	void					createPickup(SceneNode& node, const TextureHolder& textures) const;
 
 	void					updateTexts();

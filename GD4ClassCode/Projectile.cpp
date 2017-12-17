@@ -16,11 +16,12 @@ namespace
 	const std::vector<ProjectileData> Table = initializeProjectileData();
 }
 
-Projectile::Projectile(Type type, const TextureHolder& textures)
+Projectile::Projectile(Type type, const TextureHolder& textures, int playerID)
 	: Entity(1)
 	, mType(type)
 	, mSprite(textures.get(Table[type].texture), Table[type].textureRect)
 	, mTargetDirection()
+	, playerID(playerID)
 {
 	centerOrigin(mSprite);
 
@@ -73,9 +74,6 @@ void Projectile::drawCurrent(sf::RenderTarget& target, sf::RenderStates states) 
 
 unsigned int Projectile::getCategory() const
 {
-	if (mType == EnemyBullet)
-		return Category::EnemyProjectile;
-	else
 		return Category::AlliedProjectile;
 }
 

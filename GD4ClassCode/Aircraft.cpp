@@ -42,6 +42,7 @@ Aircraft::Aircraft(Type type, const TextureHolder& textures, const FontHolder& f
 	, mMissileDisplay(nullptr)
 	, mIdentifier(0)
 	, mIsGrounded(false)
+	, mPreviousPositionOnFire(this->getPosition())
 {
 	mExplosion.setFrameSize(sf::Vector2i(256, 256));
 	mExplosion.setNumFrames(16);
@@ -319,9 +320,9 @@ void Aircraft::checkProjectileLaunch(sf::Time dt, CommandQueue& commands)
 	}
 }
 
-void Aircraft::createBullets(SceneNode& node, const TextureHolder& textures) const
+void Aircraft::createBullets(SceneNode& node, const TextureHolder& textures)
 {
-	Projectile::Type type = isAllied() ? Projectile::AlliedBullet : Projectile::EnemyBullet;
+	Projectile::Type type = Projectile::AlliedBullet;
 
 	switch (mSpreadLevel)
 	{
@@ -342,16 +343,34 @@ void Aircraft::createBullets(SceneNode& node, const TextureHolder& textures) con
 	}
 }
 
-void Aircraft::createProjectile(SceneNode& node, Projectile::Type type, float xOffset, float yOffset, const TextureHolder& textures) const
+void Aircraft::createProjectile(SceneNode& node, Projectile::Type type, float xOffset, float yOffset, const TextureHolder& textures)
 {
-	std::unique_ptr<Projectile> projectile(new Projectile(type, textures));
+	std::unique_ptr<Projectile> projectile(new Projectile(type, textures,mIdentifier));
 
 	sf::Vector2f offset(xOffset * mSprite.getGlobalBounds().width, yOffset * mSprite.getGlobalBounds().height);
-	sf::Vector2f velocity(0, projectile->getMaxSpeed());
+	sf::Vector2f velocity;
+	
+	if (mPreviousPositionOnFire.x - getPosition().x > 0) {
+		velocity = sf::Vector2f(projectile->getMaxSpeed(), 0);
+	}
+	else if (mPreviousPositionOnFire.x - getPosition().x < 0) {
+		velocity = sf::Vector2f(-1 * projectile->getMaxSpeed(),0);
+	}
+	else {
+		if (mPreviousPositionOnFire.y - getPosition().y >= 0) {
+			velocity = sf::Vector2f(0, -1 * projectile->getMaxSpeed());
+		}
+		else if (mPreviousPositionOnFire.y - getPosition().y < 0) {
+			velocity = sf::Vector2f(0, projectile->getMaxSpeed());
+		}
+		else {
+			velocity = sf::Vector2f(0, projectile->getMaxSpeed());
+		}
+	}
 
-	float sign = isAllied() ? -1.f : +1.f;
-	projectile->setPosition(getWorldPosition() + offset * sign);
-	projectile->setVelocity(velocity * sign);
+	mPreviousPositionOnFire = getPosition();
+	projectile->setPosition(getWorldPosition());
+	projectile->setVelocity(velocity);
 	node.attachChild(std::move(projectile));
 }
 

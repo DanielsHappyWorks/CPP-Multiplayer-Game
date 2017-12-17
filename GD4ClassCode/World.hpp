@@ -50,9 +50,6 @@ public:
 	Aircraft* getAircraft(int identifier) const;
 
 	void createPickup(sf::Vector2f position, Pickup::Type type);
-	/*
-	bool pollGameAction(GameActions::Action& out);
-	*/
 
 private:
 	void loadTextures();

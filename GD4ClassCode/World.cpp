@@ -74,14 +74,16 @@ void World::update(sf::Time dt)
 		}
 	}
 
-	// Setup commands to destroy entities, and guide missiles
+	// Setup commands to destroy entities
 	destroyEntitiesOutsideView();
-	guideMissiles();
 
 	// Forward commands to scene graph, adapt velocity (scrolling, diagonal correction)
 	while (!mCommandQueue.isEmpty())
 		mSceneGraph.onCommand(mCommandQueue.pop(), dt);
 	adaptPlayerVelocity();
+
+	//guide missiles
+	guideMissiles();
 
 	// Collision detection and response (may destroy entities)
 	handleCollisions();
