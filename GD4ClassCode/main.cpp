@@ -2,11 +2,11 @@
 
 #include <stdexcept>
 #include <iostream>
+Application app;
 
 int main()
 {
 	try {
-		Application app;
 		app.run();
 	}
 	catch (std::exception& e)

@@ -27,7 +27,6 @@ private:
 	void					updateStatistics(sf::Time dt);
 	void					registerStates();
 
-
 private:
 	static const sf::Time	TimePerFrame;
 

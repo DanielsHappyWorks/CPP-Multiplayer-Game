@@ -17,6 +17,7 @@ namespace
 SoundPlayer::SoundPlayer()
 	:mSoundBuffers()
 	, mSounds()
+	, mVolume(100.f)
 {
 	mSoundBuffers.load(SoundEffect::AlliedGunfire, "Media/Sound/AlliedGunfire.wav");
 	mSoundBuffers.load(SoundEffect::EnemyGunfire, "Media/Sound/EnemyGunfire.wav");
@@ -44,6 +45,7 @@ void SoundPlayer::play(SoundEffect::ID effect, sf::Vector2f position)
 	sound.setPosition(position.x, -position.y, 0.f);
 	sound.setAttenuation(Attenuation);
 	sound.setMinDistance(MinDistance3D);
+	sound.setVolume(mVolume);
 	sound.play();    //sound for explosions or enemy gunfire
 }
 
@@ -66,6 +68,10 @@ sf::Vector2f SoundPlayer::getListenerPosition() const
 	return sf::Vector2f(position.x, -position.y);
 }
 
+void SoundPlayer::setVolume(float volume)
+{
+	mVolume = volume;
+}
 
 
 

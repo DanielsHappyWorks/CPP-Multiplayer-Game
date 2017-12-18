@@ -14,6 +14,7 @@ namespace States
 		GameOver,
 		MissionSuccess,
 		HostGame,
-		JoinGame
+		JoinGame,
+		Options
 	};
 }

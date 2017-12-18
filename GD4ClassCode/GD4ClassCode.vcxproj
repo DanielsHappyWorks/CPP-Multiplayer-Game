@@ -142,6 +142,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MenuState.cpp" />
     <ClCompile Include="MusicPlayer.cpp" />
+    <ClCompile Include="OptionsState.cpp" />
     <ClCompile Include="ParticleNode.cpp" />
     <ClCompile Include="PauseState.cpp" />
     <ClCompile Include="Pickup.cpp" />
@@ -182,6 +183,7 @@
     <ClInclude Include="Label.hpp" />
     <ClInclude Include="MenuState.hpp" />
     <ClInclude Include="MusicPlayer.hpp" />
+    <ClInclude Include="OptionsState.hpp" />
     <ClInclude Include="Particle.hpp" />
     <ClInclude Include="ParticleNode.hpp" />
     <ClInclude Include="PauseState.hpp" />
