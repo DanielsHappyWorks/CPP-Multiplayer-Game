@@ -73,6 +73,11 @@ void SoundPlayer::setVolume(float volume)
 	mVolume = volume;
 }
 
+float SoundPlayer::getVolume()
+{
+	return mVolume;
+}
+
 
 
 

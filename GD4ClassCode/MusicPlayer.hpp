@@ -18,6 +18,7 @@ public:
 
 	void setPaused(bool paused);
 	void setVolume(float volume); //0 = mute, 100 = max volume
+	float getVolume();
 
 private:
 	sf::Music mMusic;

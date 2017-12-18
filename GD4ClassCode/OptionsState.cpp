@@ -9,63 +9,72 @@ OptionsState::OptionsState(StateStack& stack, Context context)
 	: State(stack, context)
 	, mGUIContainer()
 	, isVsyncOn(true)
-	, isMuteSoundOn(true)
-	, isMuteMusicOn(true)
 {
+	if (context.sounds->getVolume() == 0) {
+		isMuteSoundOn = false;
+	}
+	else {
+		isMuteSoundOn = true;
+	}
+
+	if (context.music->getVolume() == 0) {
+		isMuteMusicOn = false;
+	}
+	else {
+		isMuteMusicOn = true;
+	}
+
+
 	mBackgroundSprite.setTexture(context.textures->get(Textures::TitleScreen));
 
 	auto backButton = std::make_shared<GUI::Button>(context);
-	backButton->setPosition(80.f, 620.f);
+	backButton->setPosition(100.f, 450.f);
 	backButton->setText("Back");
 	backButton->setCallback(std::bind(&OptionsState::requestStackPop, this));
 
 
 	auto vSyncButton = std::make_shared<GUI::Button>(context);
-	vSyncButton->setPosition(320.f, 620.f);
+	vSyncButton->setPosition(100.f, 300.f);
 	vSyncButton->setText("vsync");
 	vSyncButton->setCallback([this]()
 	{
 		//vsyncLable = app.toggleVsync();
 		setVsync();
 	});
+	//vsync
+	mBindingLabels[0] = std::make_shared<GUI::Label>("ON", *context.fonts);
+	mBindingLabels[0]->setPosition(350.f, 315.f);
 
 	auto muteButtonMusic = std::make_shared<GUI::Button>(context);
-	muteButtonMusic->setPosition(80.f, 420.f);
+	muteButtonMusic->setPosition(100.f, 350.f);
 	muteButtonMusic->setText("mute music");
 	muteButtonMusic->setCallback([this]()
 	{
 		//vsyncLable = app.toggleVsync();
 		setMuteMusic();
 	});
+	//mute Music
+	mBindingLabels[1] = std::make_shared<GUI::Label>("ON", *context.fonts);
+	mBindingLabels[1]->setPosition(350.f, 365.f);
 
 	auto muteButtonSound = std::make_shared<GUI::Button>(context);
-	muteButtonSound->setPosition(80.f, 220.f);
+	muteButtonSound->setPosition(100.f, 400.f);
 	muteButtonSound->setText("mute sounds");
 	muteButtonSound->setCallback([this]()
 	{
-		//vsyncLable = app.toggleVsync();
 		setMuteSound();
 	});
-
-	//vsync
-	mBindingLabels[0] = std::make_shared<GUI::Label>("ON", *context.fonts);
-	mBindingLabels[0]->setPosition(540.f, 620.f);
-	//mute Music
-	mBindingLabels[1] = std::make_shared<GUI::Label>("ON", *context.fonts);
-	mBindingLabels[1]->setPosition(160.f, 420.f);
-
 	//mute Sounds
 	mBindingLabels[2] = std::make_shared<GUI::Label>("ON", *context.fonts);
-	mBindingLabels[2]->setPosition(160.f, 220.f);
+	mBindingLabels[2]->setPosition(350.f, 415.f);
 
-
-	mGUIContainer.pack(backButton);
 	mGUIContainer.pack(vSyncButton);
-	mGUIContainer.pack(muteButtonMusic);
-	mGUIContainer.pack(muteButtonSound);
 	mGUIContainer.pack(mBindingLabels[0]);
+	mGUIContainer.pack(muteButtonMusic);
 	mGUIContainer.pack(mBindingLabels[1]);
+	mGUIContainer.pack(muteButtonSound);
 	mGUIContainer.pack(mBindingLabels[2]);
+	mGUIContainer.pack(backButton);
 }
 
 void OptionsState::draw()
@@ -92,11 +101,11 @@ void OptionsState::updateLabels()
 {
 	if (isVsyncOn)
 	{
-		mBindingLabels[0]->setText("Off");
+		mBindingLabels[0]->setText("On");
 	}
 	else 
 	{
-		mBindingLabels[0]->setText("On");
+		mBindingLabels[0]->setText("Off");
 	}
 
 	if (isMuteMusicOn)
