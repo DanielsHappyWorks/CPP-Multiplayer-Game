@@ -95,9 +95,8 @@ void World::update(sf::Time dt)
 	// Remove all destroyed entities
 	mSceneGraph.removeWrecks();
 
-	// Regular update step, adapt position (correct if outside view)
+	// Regular update step
 	mSceneGraph.update(dt, mCommandQueue);
-	adaptPlayerPosition();
 
 	//handle player collision with platform
 	handleCollisionsPlatform();
@@ -183,12 +182,20 @@ bool World::hasAlivePlayer() const
 	return mPlayerAircrafts.size() > 0;
 }
 
-bool World::hasPlayerReachedEnd() const
+int World::isLastOneStanding()
 {
-	if (Aircraft* aircraft = getAircraft(1))
-		return !mWorldBounds.contains(aircraft->getPosition());
-	else
-		return false;
+	if (mPlayerAircrafts.size() > 1) {
+		return -1;
+	}
+
+	if (mPlayerAircrafts.size() == 0) {
+		return 0;
+	}
+
+	FOREACH(Aircraft* aircraft, mPlayerAircrafts)
+	{
+		return aircraft->getIdentifier();
+	}
 }
 
 void World::loadTextures()
@@ -201,23 +208,6 @@ void World::loadTextures()
 	mTextures.load(Textures::smallPlatform, "Media/Textures/smallPlatform.png");
 	mTextures.load(Textures::largePlatform, "Media/Textures/largePlatform.png");
 
-}
-
-void World::adaptPlayerPosition()
-{
-	// Keep player's position inside the screen bounds, at least borderDistance units from the border
-	sf::FloatRect viewBounds = getViewBounds();
-	const float borderDistance = 40.f;
-
-	FOREACH(Aircraft* aircraft, mPlayerAircrafts)
-	{
-		sf::Vector2f position = aircraft->getPosition();
-		position.x = std::max(position.x, viewBounds.left + borderDistance);
-		position.x = std::min(position.x, viewBounds.left + viewBounds.width - borderDistance);
-		position.y = std::max(position.y, viewBounds.top + borderDistance);
-		position.y = std::min(position.y, viewBounds.top + viewBounds.height - borderDistance);
-		aircraft->setPosition(position);
-	}
 }
 
 void World::adaptPlayerVelocity()
@@ -236,6 +226,23 @@ void World::handleCollisions()
 {
 	std::set<SceneNode::Pair> collisionPairs;
 	mSceneGraph.checkSceneCollision(mSceneGraph, collisionPairs);
+
+
+	FOREACH(Aircraft* aircraft, mPlayerAircrafts)
+	{
+		//collide with any wall, - use viewBounds to check boundary distance
+		if (aircraft->getPosition().x < mWorldBounds.left || aircraft->getPosition().x > mWorldBounds.width || aircraft->getPosition().y < mWorldBounds.top || aircraft->getPosition().y > mWorldBounds.height) {
+			//take away health
+			aircraft->damage(1);
+			if (aircraft->getHitpoints() > 0) {
+				//move player to respawn pos, or destroy 
+				aircraft->setPosition(500.f, 100.f);
+			}
+		}
+	}
+
+
+
 
 	FOREACH(SceneNode::Pair pair, collisionPairs)
 	{
@@ -304,6 +311,11 @@ void World::handleCollisions()
 
 void World::handleCollisionsPlatform()
 {
+	FOREACH(Aircraft* aircraft, mPlayerAircrafts)
+	{ 
+		aircraft->mIsGrounded = false;
+	}
+
 	std::set<SceneNode::Pair> collisionPairs;
 	mSceneGraph.checkSceneCollision(mSceneGraph, collisionPairs);
 	FOREACH(SceneNode::Pair pair, collisionPairs)
@@ -317,7 +329,7 @@ void World::handleCollisionsPlatform()
 			if (!aircraft.mIsGrounded) {
 				aircraft.setVelocity(aircraft.getVelocity().x, 0);
 				if (platform.mType == Platform::largePlatform) {
-					aircraft.setPosition(aircraft.getPosition().x, platform.getPosition().y - 60);
+					aircraft.setPosition(aircraft.getPosition().x, platform.getPosition().y - 58);
 				}
 				else {
 					aircraft.setPosition(aircraft.getPosition().x, platform.getPosition().y - 50);

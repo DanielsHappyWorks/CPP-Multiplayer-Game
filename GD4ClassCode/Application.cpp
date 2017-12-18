@@ -43,7 +43,7 @@ Application::Application()
 	registerStates();
 	mStateStack.pushState(States::Title);
 
-	mMusic.setVolume(25.f);
+	mMusic.setVolume(100.f);
 }
 
 void Application::run()
@@ -123,6 +123,7 @@ void Application::registerStates()
 	mStateStack.registerState<PauseState>(States::NetworkPause, true);
 	mStateStack.registerState<SettingsState>(States::Settings);
 	mStateStack.registerState<OptionsState>(States::Options);
-	mStateStack.registerState<GameOverState>(States::GameOver, "Mission Failed!");
-	mStateStack.registerState<GameOverState>(States::MissionSuccess, "Mission Successful!");
+	mStateStack.registerState<GameOverState>(States::MissionSuccess1, "Player 1 Wins!");
+	mStateStack.registerState<GameOverState>(States::MissionSuccess2, "Player 2 Wins!");
+	mStateStack.registerState<GameOverState>(States::MissionDraw, "You Suck, Draw!");
 }

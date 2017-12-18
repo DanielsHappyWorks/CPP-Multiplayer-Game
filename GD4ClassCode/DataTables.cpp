@@ -12,7 +12,7 @@ std::vector<AircraftData> initializeAircraftData()
 {
 	std::vector<AircraftData> data(Aircraft::TypeCount);
 
-	data[Aircraft::Eagle].hitpoints = 100;
+	data[Aircraft::Eagle].hitpoints = 3;
 	data[Aircraft::Eagle].speed = 400.f;
 	data[Aircraft::Eagle].fireInterval = sf::seconds(1);
 	data[Aircraft::Eagle].texture = Textures::Entities;

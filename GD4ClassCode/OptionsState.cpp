@@ -28,13 +28,13 @@ OptionsState::OptionsState(StateStack& stack, Context context)
 	mBackgroundSprite.setTexture(context.textures->get(Textures::TitleScreen));
 
 	auto backButton = std::make_shared<GUI::Button>(context);
-	backButton->setPosition(100.f, 450.f);
+	backButton->setPosition(400.f, 450.f);
 	backButton->setText("Back");
 	backButton->setCallback(std::bind(&OptionsState::requestStackPop, this));
 
 
 	auto vSyncButton = std::make_shared<GUI::Button>(context);
-	vSyncButton->setPosition(100.f, 300.f);
+	vSyncButton->setPosition(400.f, 300.f);
 	vSyncButton->setText("vsync");
 	vSyncButton->setCallback([this]()
 	{
@@ -43,10 +43,10 @@ OptionsState::OptionsState(StateStack& stack, Context context)
 	});
 	//vsync
 	mBindingLabels[0] = std::make_shared<GUI::Label>("ON", *context.fonts);
-	mBindingLabels[0]->setPosition(350.f, 315.f);
+	mBindingLabels[0]->setPosition(620.f, 315.f);
 
 	auto muteButtonMusic = std::make_shared<GUI::Button>(context);
-	muteButtonMusic->setPosition(100.f, 350.f);
+	muteButtonMusic->setPosition(400.f, 350.f);
 	muteButtonMusic->setText("mute music");
 	muteButtonMusic->setCallback([this]()
 	{
@@ -55,10 +55,10 @@ OptionsState::OptionsState(StateStack& stack, Context context)
 	});
 	//mute Music
 	mBindingLabels[1] = std::make_shared<GUI::Label>("ON", *context.fonts);
-	mBindingLabels[1]->setPosition(350.f, 365.f);
+	mBindingLabels[1]->setPosition(620.f, 365.f);
 
 	auto muteButtonSound = std::make_shared<GUI::Button>(context);
-	muteButtonSound->setPosition(100.f, 400.f);
+	muteButtonSound->setPosition(400.f, 400.f);
 	muteButtonSound->setText("mute sounds");
 	muteButtonSound->setCallback([this]()
 	{
@@ -66,7 +66,7 @@ OptionsState::OptionsState(StateStack& stack, Context context)
 	});
 	//mute Sounds
 	mBindingLabels[2] = std::make_shared<GUI::Label>("ON", *context.fonts);
-	mBindingLabels[2]->setPosition(350.f, 415.f);
+	mBindingLabels[2]->setPosition(620.f, 415.f);
 
 	mGUIContainer.pack(vSyncButton);
 	mGUIContainer.pack(mBindingLabels[0]);

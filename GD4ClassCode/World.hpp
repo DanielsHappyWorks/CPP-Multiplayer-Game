@@ -45,7 +45,7 @@ public:
 	void sortEnemies();
 
 	bool hasAlivePlayer() const;
-	bool hasPlayerReachedEnd() const;
+	int isLastOneStanding();
 
 	Aircraft* getAircraft(int identifier) const;
 
@@ -53,7 +53,6 @@ public:
 
 private:
 	void loadTextures();
-	void adaptPlayerPosition();
 	void adaptPlayerVelocity();
 	void handleCollisions();
 	void handleCollisionsPlatform();

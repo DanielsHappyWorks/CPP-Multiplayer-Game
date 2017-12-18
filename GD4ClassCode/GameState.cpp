@@ -27,17 +27,16 @@ bool GameState::update(sf::Time dt)
 {
 	mWorld.update(dt);
 
-	if (!mWorld.hasAlivePlayer())
+	int lastOne = mWorld.isLastOneStanding();
+	if (lastOne == 1)
 	{
-		mPlayer.setMissionStatus(Player::MissionFailure);
-		mPlayer2.setMissionStatus(Player::MissionFailure);
-		requestStackPush(States::GameOver);
+		requestStackPush(States::MissionSuccess1);
 	}
-	else if (mWorld.hasPlayerReachedEnd())
-	{
-		mPlayer.setMissionStatus(Player::MissionSuccess);
-		mPlayer2.setMissionStatus(Player::MissionSuccess);
-		requestStackPush(States::GameOver);
+	else if (lastOne == 2) {
+		requestStackPush(States::MissionSuccess2);
+	}
+	else if (lastOne == 0) {
+		requestStackPush(States::MissionDraw);
 	}
 
 	CommandQueue& commands = mWorld.getCommandQueue();
