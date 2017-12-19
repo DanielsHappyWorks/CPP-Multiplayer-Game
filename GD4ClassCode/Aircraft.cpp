@@ -252,7 +252,7 @@ void Aircraft::setIdentifier(int identifier)
 	mIdentifier = identifier;
 }
 
-int	Aircraft::getKnockback()
+float Aircraft::getKnockback()
 {
 	return mKnockbackModifier;
 }

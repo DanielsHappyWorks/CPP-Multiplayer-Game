@@ -74,7 +74,7 @@ void World::update(sf::Time dt)
 	}
 	//spawn pickups
 	if (randomInt(1000) == 0) {
-		sf::Vector2f pos = sf::Vector2f(randomInt(600)+200, 10.f);
+		sf::Vector2f pos = sf::Vector2f(randomInt(600)+200, 10);
 		auto type = static_cast<Pickup::Type>(randomInt(Pickup::TypeCount));
 		createPickup(pos, type);
 	}
