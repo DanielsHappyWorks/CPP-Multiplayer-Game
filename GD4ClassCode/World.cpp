@@ -212,7 +212,6 @@ void World::loadTextures()
 	mTextures.load(Textures::FinishLine, "Media/Textures/FinishLine.png");
 	mTextures.load(Textures::smallPlatform, "Media/Textures/smallPlatform.png");
 	mTextures.load(Textures::largePlatform, "Media/Textures/largePlatform.png");
-
 }
 
 void World::adaptPlayerVelocity()
@@ -324,6 +323,7 @@ void World::handleCollisions()
 
 void World::handleCollisionsPlatform()
 {
+	//handles platforms collision and jump mechanics
 	FOREACH(Aircraft* aircraft, mPlayerAircrafts)
 	{ 
 		aircraft->mIsGrounded = false;

@@ -9,10 +9,9 @@ GameState::GameState(StateStack& stack, Context context)
 	, mPlayer(nullptr, 1, context.keys1)
 	, mPlayer2(nullptr, 2, context.keys2)
 {
+	//add both players
 	mWorld.addAircraft(1, 100.f, 100.f);
 	mWorld.addAircraft(2, 500.f, 100.f);
-	mPlayer.setMissionStatus(Player::MissionRunning);
-	mPlayer2.setMissionStatus(Player::MissionRunning);
 
 	// Play game theme
 	context.music->play(Music::MissionTheme);
@@ -27,6 +26,7 @@ bool GameState::update(sf::Time dt)
 {
 	mWorld.update(dt);
 
+	//check for winner of game
 	int lastOne = mWorld.isLastOneStanding();
 	if (lastOne == 1)
 	{

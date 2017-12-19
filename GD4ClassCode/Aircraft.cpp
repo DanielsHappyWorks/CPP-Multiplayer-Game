@@ -61,9 +61,10 @@ Aircraft::Aircraft(Type type, const TextureHolder& textures, const FontHolder& f
 	mMissileCommand.category = Category::SceneAirLayer;
 	mMissileCommand.action = [this, &textures](SceneNode& node, sf::Time)
 	{
-		createProjectile(node, Projectile::Missile, 0.f, 0.5f, textures);
+		createProjectile(node, Projectile::Missile, textures);
 	};
 
+	//set up display texts
 	std::unique_ptr<TextNode> PlayerDisplay(new TextNode(fonts, ""));
 	PlayerDisplay->setPosition(0.f, -50.f);
 	mPlayerDisplay = PlayerDisplay.get();
@@ -338,29 +339,29 @@ void Aircraft::createBullets(SceneNode& node, const TextureHolder& textures)
 	switch (mSpreadLevel)
 	{
 	case 1:
-		createProjectile(node, type, 0.0f, 0.5f, textures);
+		createProjectile(node, type, textures);
 		break;
 
 	case 2:
-		createProjectile(node, type, -0.33f, 0.33f, textures);
-		createProjectile(node, type, +0.33f, 0.33f, textures);
+		createProjectile(node, type, textures);
+		createProjectile(node, type, textures);
 		break;
 
 	case 3:
-		createProjectile(node, type, -0.5f, 0.33f, textures);
-		createProjectile(node, type, 0.0f, 0.5f, textures);
-		createProjectile(node, type, +0.5f, 0.33f, textures);
+		createProjectile(node, type, textures);
+		createProjectile(node, type, textures);
+		createProjectile(node, type, textures);
 		break;
 	}
 }
 
-void Aircraft::createProjectile(SceneNode& node, Projectile::Type type, float xOffset, float yOffset, const TextureHolder& textures)
+void Aircraft::createProjectile(SceneNode& node, Projectile::Type type, const TextureHolder& textures)
 {
 	std::unique_ptr<Projectile> projectile(new Projectile(type, textures,mIdentifier));
 
-	sf::Vector2f offset(xOffset * mSprite.getGlobalBounds().width, yOffset * mSprite.getGlobalBounds().height);
 	sf::Vector2f velocity;
 	
+	//shoot bullet in previous x movement direction, or up
 	if (mPreviousPositionOnFire.x - getPosition().x > 0) {
 		velocity = sf::Vector2f(projectile->getMaxSpeed(), 0);
 		projectile->setRotation(90.f);
@@ -374,7 +375,7 @@ void Aircraft::createProjectile(SceneNode& node, Projectile::Type type, float xO
 	}
 
 	mPreviousPositionOnFire = getPosition();
-	projectile->setPosition(getWorldPosition() + offset);
+	projectile->setPosition(getWorldPosition());
 	projectile->setVelocity(velocity);
 	node.attachChild(std::move(projectile));
 }

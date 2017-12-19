@@ -4,6 +4,10 @@
 
 #include <SFML/Graphics/RenderWindow.hpp>
 
+/*
+	Handles the options menu,
+	Allows enabling for sound and vsync
+*/
 
 OptionsState::OptionsState(StateStack& stack, Context context)
 	: State(stack, context)
@@ -38,7 +42,6 @@ OptionsState::OptionsState(StateStack& stack, Context context)
 	vSyncButton->setText("vsync");
 	vSyncButton->setCallback([this]()
 	{
-		//vsyncLable = app.toggleVsync();
 		setVsync();
 	});
 	//vsync
@@ -50,9 +53,9 @@ OptionsState::OptionsState(StateStack& stack, Context context)
 	muteButtonMusic->setText("mute music");
 	muteButtonMusic->setCallback([this]()
 	{
-		//vsyncLable = app.toggleVsync();
 		setMuteMusic();
 	});
+
 	//mute Music
 	mBindingLabels[1] = std::make_shared<GUI::Label>("ON", *context.fonts);
 	mBindingLabels[1]->setPosition(620.f, 365.f);
@@ -64,6 +67,7 @@ OptionsState::OptionsState(StateStack& stack, Context context)
 	{
 		setMuteSound();
 	});
+
 	//mute Sounds
 	mBindingLabels[2] = std::make_shared<GUI::Label>("ON", *context.fonts);
 	mBindingLabels[2]->setPosition(620.f, 415.f);

@@ -60,7 +60,7 @@ private:
 	void					checkProjectileLaunch(sf::Time dt, CommandQueue& commands);
 
 	void					createBullets(SceneNode& node, const TextureHolder& textures);
-	void					createProjectile(SceneNode& node, Projectile::Type type, float xOffset, float yOffset, const TextureHolder& textures);
+	void					createProjectile(SceneNode& node, Projectile::Type type, const TextureHolder& textures);
 
 	void					updateTexts();
 	void					updateRollAnimation();
