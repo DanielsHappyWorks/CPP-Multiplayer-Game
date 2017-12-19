@@ -42,6 +42,9 @@ public:
 	void					playLocalSound(CommandQueue& commands, SoundEffect::ID effect);
 	int						getIdentifier();
 	void					setIdentifier(int identifier);
+	int						getKnockback();
+	void					setKnockback(float increment);
+	void					incrementKnockback(float increment);
 	int						getMissileAmmo() const;
 	void					setMissileAmmo(int ammo);
 
@@ -58,7 +61,6 @@ private:
 
 	void					createBullets(SceneNode& node, const TextureHolder& textures);
 	void					createProjectile(SceneNode& node, Projectile::Type type, float xOffset, float yOffset, const TextureHolder& textures);
-	void					createPickup(SceneNode& node, const TextureHolder& textures) const;
 
 	void					updateTexts();
 	void					updateRollAnimation();
@@ -86,8 +88,11 @@ private:
 	Command 				mDropPickupCommand;
 	float					mTravelledDistance;
 	std::size_t				mDirectionIndex;
+	TextNode*				mPlayerDisplay;
 	TextNode*				mHealthDisplay;
 	TextNode*				mMissileDisplay;
+	TextNode*				mKnockbackDisplay;
 
 	int						mIdentifier;
+	float					mKnockbackModifier;
 };

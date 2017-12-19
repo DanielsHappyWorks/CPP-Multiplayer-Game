@@ -27,8 +27,7 @@ World::World(sf::RenderTarget& outputTarget, FontHolder& fonts, SoundPlayer& sou
 	, mWorldBounds(0.f, 0.f, mWorldView.getSize().x, mWorldView.getSize().y)
 	, mSpawnPosition(mWorldView.getSize().x / 2.f, mWorldBounds.height - mWorldView.getSize().y / 2.f)
 	, mPlayerAircrafts()
-	, mEnemySpawnPoints()
-	, mActiveEnemies()
+	, mActivePlayers()
 	, mFinishSprite(nullptr)
 	, mGravity(0.f, 250.f)
 {
@@ -72,6 +71,12 @@ void World::update(sf::Time dt)
 		if (!a->mIsGrounded) {
 			a->accelerate(mGravity);
 		}
+	}
+	//spawn pickups
+	if (randomInt(1000) == 0) {
+		sf::Vector2f pos = sf::Vector2f(randomInt(600)+200, 10.f);
+		auto type = static_cast<Pickup::Type>(randomInt(Pickup::TypeCount));
+		createPickup(pos, type);
 	}
 
 	// Setup commands to destroy entities
@@ -162,7 +167,7 @@ void World::createPickup(sf::Vector2f position, Pickup::Type type)
 {
 	std::unique_ptr<Pickup> pickup(new Pickup(type, mTextures));
 	pickup->setPosition(position);
-	pickup->setVelocity(0.f, 1.f);
+	pickup->setVelocity(mGravity);
 	mSceneLayers[UpperAir]->attachChild(std::move(pickup));
 }
 
@@ -237,12 +242,10 @@ void World::handleCollisions()
 			if (aircraft->getHitpoints() > 0) {
 				//move player to respawn pos, or destroy 
 				aircraft->setPosition(500.f, 100.f);
+				aircraft->setKnockback(40.f);
 			}
 		}
 	}
-
-
-
 
 	FOREACH(SceneNode::Pair pair, collisionPairs)
 	{
@@ -251,34 +254,36 @@ void World::handleCollisions()
 			auto& player1 = static_cast<Aircraft&>(*pair.first);
 			auto& player2 = static_cast<Aircraft&>(*pair.second);
 
-			// Collision: Player damage = enemy's remaining HP
+			// Collision: Players bounce back on impact
 			float xVelocity1 = 0;
 			float xVelocity2 = 0;
 			if (fabs(player1.getVelocity().x) > fabs(player2.getVelocity().x)) {
-				xVelocity1 = 100 * player2.getVelocity().x;
-				xVelocity2 = 25 * player1.getVelocity().x;
+				xVelocity1 = player1.getKnockback() * player2.getVelocity().x;
+				xVelocity2 = player2.getKnockback() / 2 * player1.getVelocity().x;
+				player2.incrementKnockback(5.f);
 			}
 			else if (fabs(player1.getVelocity().x) < fabs(player2.getVelocity().x)) {
-				xVelocity2 = 100 * player1.getVelocity().x;
-				xVelocity1 = 25 * player2.getVelocity().x;
+				xVelocity2 = player2.getKnockback() * player1.getVelocity().x;
+				xVelocity1 = player1.getKnockback() / 2 * player2.getVelocity().x;
+				player1.incrementKnockback(5.f);
 			}
 			else {
-				xVelocity1 = 50 * player2.getVelocity().x;
-				xVelocity2 = 50 * player1.getVelocity().x;
+				xVelocity1 = player1.getKnockback() / 2 * player2.getVelocity().x;
+				xVelocity2 = player2.getKnockback() / 2 * player1.getVelocity().x;
 			}
 
 			float yVelocity1 = 0;
 			float yVelocity2 = 0;
 			if (fabs(player1.getVelocity().y) > fabs(player2.getVelocity().y)) {
-				yVelocity1 = -25 * player1.getVelocity().y;
+				yVelocity1 = -player1.getKnockback() / 2 * player1.getVelocity().y;
 			}
 			else if (fabs(player1.getVelocity().y) < fabs(player2.getVelocity().y)) {
-				yVelocity2 = -25 * player2.getVelocity().y;
+				yVelocity2 = -player2.getKnockback() / 2 * player2.getVelocity().y;
 			}
 			else
 			{
-				xVelocity1 = 10 * player2.getVelocity().x;
-				xVelocity2 = 10 * player1.getVelocity().x;
+				xVelocity1 = player1.getKnockback() / 4 * player2.getVelocity().x;
+				xVelocity2 = player2.getKnockback() / 4 * player1.getVelocity().x;
 			}
 
 			player1.setVelocity(xVelocity1, yVelocity1);
@@ -296,15 +301,23 @@ void World::handleCollisions()
 			player.playLocalSound(mCommandQueue, SoundEffect::CollectPickup);
 		}
 
-		else if (matchesCategories(pair, Category::EnemyAircraft, Category::AlliedProjectile)
-			|| matchesCategories(pair, Category::PlayerAircraft, Category::EnemyProjectile))
+		else if (matchesCategories(pair, Category::PlayerAircraft, Category::AlliedProjectile))
 		{
 			auto& aircraft = static_cast<Aircraft&>(*pair.first);
 			auto& projectile = static_cast<Projectile&>(*pair.second);
 
-			// Apply projectile damage to aircraft, destroy projectile
-			aircraft.damage(projectile.getDamage());
-			projectile.destroy();
+			if (aircraft.getIdentifier() != projectile.playerID && projectile.isGuided()) {
+				// Apply projectileknockback + increment knockback multiplier
+				aircraft.setVelocity(aircraft.getKnockback() * projectile.getVelocity().x, aircraft.getKnockback() / 2 * projectile.getVelocity().y);
+				aircraft.incrementKnockback(20.f);
+				projectile.destroy();
+			}
+			else if (aircraft.getIdentifier() != projectile.playerID) {
+				// Apply projectileknockback + increment knockback multiplier
+				aircraft.setVelocity(aircraft.getKnockback() / 4 * projectile.getVelocity().x, aircraft.getKnockback() / 4 * projectile.getVelocity().y);
+				aircraft.incrementKnockback(5.f);
+				projectile.destroy();
+			}
 		}
 	}
 }
@@ -448,12 +461,12 @@ void World::destroyEntitiesOutsideView()
 void World::guideMissiles()
 {
 	// Setup command that stores all enemies in mActiveEnemies
-	Command enemyCollector;
-	enemyCollector.category = Category::EnemyAircraft;
-	enemyCollector.action = derivedAction<Aircraft>([this](Aircraft& enemy, sf::Time)
+	Command playerCollector;
+	playerCollector.category = Category::PlayerAircraft;
+	playerCollector.action = derivedAction<Aircraft>([this](Aircraft& player, sf::Time)
 	{
-		if (!enemy.isDestroyed())
-			mActiveEnemies.push_back(&enemy);
+		if (!player.isDestroyed())
+			mActivePlayers.push_back(&player);
 	});
 
 	// Setup command that guides all missiles to the enemy which is currently closest to the player
@@ -466,28 +479,28 @@ void World::guideMissiles()
 			return;
 
 		float minDistance = std::numeric_limits<float>::max();
-		Aircraft* closestEnemy = nullptr;
+		Aircraft* closestPlayer = nullptr;
 
 		// Find closest enemy
-		FOREACH(Aircraft* enemy, mActiveEnemies)
+		FOREACH(Aircraft* player, mActivePlayers)
 		{
-			float enemyDistance = distance(missile, *enemy);
+			float playerDistance = distance(missile, *player);
 
-			if (enemyDistance < minDistance)
+			if (playerDistance < minDistance && player->getIdentifier() != missile.playerID)
 			{
-				closestEnemy = enemy;
-				minDistance = enemyDistance;
+				closestPlayer = player;
+				minDistance = playerDistance;
 			}
 		}
 
-		if (closestEnemy)
-			missile.guideTowards(closestEnemy->getWorldPosition());
+		if (closestPlayer)
+			missile.guideTowards(closestPlayer->getWorldPosition());
 	});
 
 	// Push commands, reset active enemies
-	mCommandQueue.push(enemyCollector);
+	mCommandQueue.push(playerCollector);
 	mCommandQueue.push(missileGuider);
-	mActiveEnemies.clear();
+	mActivePlayers.clear();
 }
 
 sf::FloatRect World::getViewBounds() const

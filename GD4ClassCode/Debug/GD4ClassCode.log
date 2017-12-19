@@ -1,4 +1,4 @@
-﻿  World.cpp
-f:\users\grapecauliflower\documents\cpp-multiplayer-game\gd4classcode\world.cpp(199): warning C4715: 'World::isLastOneStanding': not all control paths return a value
+﻿  Aircraft.cpp
+f:\users\grapecauliflower\documents\cpp-multiplayer-game\gd4classcode\aircraft.cpp(256): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
   GD4ClassCode.vcxproj -> F:\Users\GrapeCauliflower\Documents\CPP-Multiplayer-Game\Debug\GD4ClassCode.exe
   GD4ClassCode.vcxproj -> F:\Users\GrapeCauliflower\Documents\CPP-Multiplayer-Game\Debug\GD4ClassCode.pdb (Partial PDB)

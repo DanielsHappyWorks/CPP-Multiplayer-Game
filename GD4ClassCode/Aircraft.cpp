@@ -41,6 +41,7 @@ Aircraft::Aircraft(Type type, const TextureHolder& textures, const FontHolder& f
 	, mDirectionIndex(0)
 	, mMissileDisplay(nullptr)
 	, mIdentifier(0)
+	, mKnockbackModifier(40.f)
 	, mIsGrounded(false)
 	, mPreviousPositionOnFire(this->getPosition())
 {
@@ -63,20 +64,25 @@ Aircraft::Aircraft(Type type, const TextureHolder& textures, const FontHolder& f
 		createProjectile(node, Projectile::Missile, 0.f, 0.5f, textures);
 	};
 
-	mDropPickupCommand.category = Category::SceneAirLayer;
-	mDropPickupCommand.action = [this, &textures](SceneNode& node, sf::Time)
-	{
-		createPickup(node, textures);
-	};
+	std::unique_ptr<TextNode> PlayerDisplay(new TextNode(fonts, ""));
+	PlayerDisplay->setPosition(0.f, -50.f);
+	mPlayerDisplay = PlayerDisplay.get();
+	attachChild(std::move(PlayerDisplay));
+
+	std::unique_ptr<TextNode> KnockbackDisplay(new TextNode(fonts, ""));
+	KnockbackDisplay->setPosition(0.f, 70.f);
+	mKnockbackDisplay = KnockbackDisplay.get();
+	attachChild(std::move(KnockbackDisplay));
 
 	std::unique_ptr<TextNode> healthDisplay(new TextNode(fonts, ""));
+	healthDisplay->setPosition(0.f, 50.f);
 	mHealthDisplay = healthDisplay.get();
 	attachChild(std::move(healthDisplay));
 
 	if (getCategory() == Category::PlayerAircraft)
 	{
 		std::unique_ptr<TextNode> missileDisplay(new TextNode(fonts, ""));
-		missileDisplay->setPosition(0, 70);
+		missileDisplay->setPosition(0, 90);
 		mMissileDisplay = missileDisplay.get();
 		attachChild(std::move(missileDisplay));
 	}
@@ -113,10 +119,11 @@ void Aircraft::updateCurrent(sf::Time dt, CommandQueue& commands)
 	updateTexts();
 	updateRollAnimation();
 
+	checkPickupDrop(commands);
+
 	// Entity has been destroyed: Possibly drop pickup, mark for removal
 	if (isDestroyed())
 	{
-		checkPickupDrop(commands);
 		mExplosion.update(dt);
 
 		// Play explosion sound only once
@@ -129,17 +136,6 @@ void Aircraft::updateCurrent(sf::Time dt, CommandQueue& commands)
 			if (!isAllied())
 			{
 				sf::Vector2f position = getWorldPosition();
-
-				/*
-				Command command;
-				command.category = Category::Network;
-				command.action = derivedAction<NetworkNode>([position](NetworkNode& node, sf::Time)
-				{
-					node.notifyGameAction(GameActions::EnemyExplode, position);
-				});
-
-				commands.push(command);
-				*/
 			}
 
 			mExplosionBegan = true;
@@ -255,6 +251,21 @@ void Aircraft::setIdentifier(int identifier)
 	mIdentifier = identifier;
 }
 
+int	Aircraft::getKnockback()
+{
+	return mKnockbackModifier;
+}
+
+void Aircraft::setKnockback(float increment)
+{
+	mKnockbackModifier = increment;
+}
+
+void Aircraft::incrementKnockback(float increment)
+{
+	mKnockbackModifier += increment;
+}
+
 void Aircraft::updateMovementPattern(sf::Time dt)
 {
 	// Enemy airplane: Movement pattern
@@ -281,7 +292,7 @@ void Aircraft::updateMovementPattern(sf::Time dt)
 
 void Aircraft::checkPickupDrop(CommandQueue& commands)
 {
-	if (!isAllied() && randomInt(3) == 0 && !mSpawnedPickup)
+	if (randomInt(10) == 0 && !mSpawnedPickup)
 		commands.push(mDropPickupCommand);
 
 	mSpawnedPickup = true;
@@ -352,48 +363,44 @@ void Aircraft::createProjectile(SceneNode& node, Projectile::Type type, float xO
 	
 	if (mPreviousPositionOnFire.x - getPosition().x > 0) {
 		velocity = sf::Vector2f(projectile->getMaxSpeed(), 0);
+		projectile->setRotation(90.f);
 	}
 	else if (mPreviousPositionOnFire.x - getPosition().x < 0) {
 		velocity = sf::Vector2f(-1 * projectile->getMaxSpeed(),0);
+		projectile->setRotation(90.f);
 	}
 	else {
-		if (mPreviousPositionOnFire.y - getPosition().y >= 0) {
-			velocity = sf::Vector2f(0, -1 * projectile->getMaxSpeed());
-		}
-		else if (mPreviousPositionOnFire.y - getPosition().y < 0) {
-			velocity = sf::Vector2f(0, projectile->getMaxSpeed());
-		}
-		else {
-			velocity = sf::Vector2f(0, projectile->getMaxSpeed());
-		}
+		velocity = sf::Vector2f(0, -1 * projectile->getMaxSpeed());
 	}
 
 	mPreviousPositionOnFire = getPosition();
-	projectile->setPosition(getWorldPosition());
+	projectile->setPosition(getWorldPosition() + offset);
 	projectile->setVelocity(velocity);
 	node.attachChild(std::move(projectile));
 }
 
-void Aircraft::createPickup(SceneNode& node, const TextureHolder& textures) const
-{
-	auto type = static_cast<Pickup::Type>(randomInt(Pickup::TypeCount));
-
-	std::unique_ptr<Pickup> pickup(new Pickup(type, textures));
-	pickup->setPosition(getWorldPosition());
-	pickup->setVelocity(0.f, 1.f);
-	node.attachChild(std::move(pickup));
-}
-
 void Aircraft::updateTexts()
 {
+	// Display Player Id
+	if (isDestroyed())
+		mPlayerDisplay->setString("");
+	else
+		mPlayerDisplay->setString("Player: " + toString(getIdentifier()));
+		mPlayerDisplay->setRotation(-getRotation());
+
 	// Display hitpoints
 	if (isDestroyed())
 		mHealthDisplay->setString("");
 	else
-		mHealthDisplay->setString(toString(getHitpoints()) + " HP");
-	mHealthDisplay->setPosition(0.f, 50.f);
-	mHealthDisplay->setRotation(-getRotation());
+		mHealthDisplay->setString("HP: " + toString(getHitpoints()));
+		mHealthDisplay->setRotation(-getRotation());
 
+	// Display Player Id
+	if (isDestroyed())
+		mKnockbackDisplay->setString("");
+	else
+		mKnockbackDisplay->setString("Knock: " + toString(getKnockback()-40));
+		mKnockbackDisplay->setRotation(-getRotation());
 	// Display missiles, if available
 	if (mMissileDisplay)
 	{
