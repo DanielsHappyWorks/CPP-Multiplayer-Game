@@ -4,6 +4,7 @@
 #include "Pickup.hpp"
 #include "CommandQueue.hpp"
 #include "SoundNode.hpp"
+#include "NetworkNode.hpp"
 #include "ResourceHolder.hpp"
 
 #include <SFML/Graphics/RenderTarget.hpp>
@@ -137,6 +138,15 @@ void Aircraft::updateCurrent(sf::Time dt, CommandQueue& commands)
 			if (!isAllied())
 			{
 				sf::Vector2f position = getWorldPosition();
+
+				Command command;
+				command.category = Category::Network;
+				command.action = derivedAction<NetworkNode>([position](NetworkNode& node, sf::Time)
+				{
+					node.notifyGameAction(GameActions::EnemyExplode, position);
+				});
+
+				commands.push(command);
 			}
 
 			mExplosionBegan = true;

@@ -24,35 +24,34 @@ MenuState::MenuState(StateStack& stack, Context context)
 		requestStackPush(States::Game);
 	});
 
-	/*auto hostPlayButton = std::make_shared<GUI::Button>(context);
-	hostPlayButton->setPosition(100, 350);
+	auto hostPlayButton = std::make_shared<GUI::Button>(context);
+	hostPlayButton->setPosition(420, 355);
 	hostPlayButton->setText("Host");
 	hostPlayButton->setCallback([this]()
 	{
 		requestStackPop();
 		requestStackPush(States::HostGame);
-	});*/
-
-	auto optionsPlayButton = std::make_shared<GUI::Button>(context);
-	optionsPlayButton->setPosition(420, 350);
-	optionsPlayButton->setText("Options");
-	optionsPlayButton->setCallback([this]()
-	{
-		requestStackPush(States::Options);
 	});
-	
-	/*auto joinPlayButton = std::make_shared<GUI::Button>(context);
-	joinPlayButton->setPosition(100, 400);
+
+	auto joinPlayButton = std::make_shared<GUI::Button>(context);
+	joinPlayButton->setPosition(420, 410);
 	joinPlayButton->setText("Join");
 	joinPlayButton->setCallback([this]()
 	{
 		requestStackPop();
 		requestStackPush(States::JoinGame);
 	});
-	*/
+
+	auto optionsPlayButton = std::make_shared<GUI::Button>(context);
+	optionsPlayButton->setPosition(420, 465);
+	optionsPlayButton->setText("Options");
+	optionsPlayButton->setCallback([this]()
+	{
+		requestStackPush(States::Options);
+	});
 
 	auto settingsButton = std::make_shared<GUI::Button>(context);
-	settingsButton->setPosition(420, 400);
+	settingsButton->setPosition(420, 520);
 	settingsButton->setText("Controls");
 	settingsButton->setCallback([this]()
 	{
@@ -60,7 +59,7 @@ MenuState::MenuState(StateStack& stack, Context context)
 	});
 
 	auto exitButton = std::make_shared<GUI::Button>(context);
-	exitButton->setPosition(420, 450);
+	exitButton->setPosition(420, 575);
 	exitButton->setText("Exit");
 	exitButton->setCallback([this]()
 	{
@@ -69,8 +68,8 @@ MenuState::MenuState(StateStack& stack, Context context)
 
 	mGUIContainer.pack(playButton);
 	mGUIContainer.pack(optionsPlayButton);
-	/*mGUIContainer.pack(hostPlayButton);
-	mGUIContainer.pack(joinPlayButton);*/
+	mGUIContainer.pack(hostPlayButton);
+	mGUIContainer.pack(joinPlayButton);
 	mGUIContainer.pack(settingsButton);
 	mGUIContainer.pack(exitButton);
 

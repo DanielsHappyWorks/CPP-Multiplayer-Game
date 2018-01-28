@@ -11,6 +11,8 @@ namespace States
 		Pause,
 		NetworkPause,
 		Settings,
+		GameOver,
+		MissionSuccess,
 		MissionSuccess1,
 		MissionSuccess2,
 		MissionDraw,

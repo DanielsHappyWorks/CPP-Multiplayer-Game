@@ -6,7 +6,7 @@
 #include "TextNode.hpp"
 #include "ParticleNode.hpp"
 #include "SoundNode.hpp"
-
+#include "NetworkNode.hpp"
 #include "Utility.hpp"
 #include <SFML/Graphics/RenderTarget.hpp>
 
@@ -38,6 +38,11 @@ World::World(sf::RenderTarget& outputTarget, FontHolder& fonts, SoundPlayer& sou
 
 	// Prepare the view
 	mWorldView.setCenter(mSpawnPosition);
+}
+
+void World::setWorldScrollCompensation(float compensation)
+{
+	mScrollSpeedCompensation = compensation;
 }
 
 bool matchesCategories(SceneNode::Pair& colliders, Category::Type type1, Category::Type type2)
@@ -169,6 +174,11 @@ void World::createPickup(sf::Vector2f position, Pickup::Type type)
 	pickup->setPosition(position);
 	pickup->setVelocity(mGravity);
 	mSceneLayers[UpperAir]->attachChild(std::move(pickup));
+}
+
+bool World::pollGameAction(GameActions::Action& out)
+{
+	return mNetworkNode->pollGameAction(out);
 }
 
 void World::setCurrentBattleFieldPosition(float lineY)
@@ -506,4 +516,15 @@ void World::guideMissiles()
 sf::FloatRect World::getViewBounds() const
 {
 	return sf::FloatRect(mWorldView.getCenter() - mWorldView.getSize() / 2.f, mWorldView.getSize());
+}
+
+Aircraft* World::addAircraft(int identifier)
+{
+	std::unique_ptr<Aircraft> player(new Aircraft(Aircraft::Eagle, mTextures, mFonts));
+	player->setPosition(mWorldView.getCenter());
+	player->setIdentifier(identifier);
+
+	mPlayerAircrafts.push_back(player.get());
+	mSceneLayers[UpperAir]->attachChild(std::move(player));
+	return mPlayerAircrafts.back();
 }

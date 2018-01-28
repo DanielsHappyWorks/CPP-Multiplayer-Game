@@ -10,6 +10,7 @@
 #include "Platform.hpp"
 #include "BloomEffect.hpp"
 #include "SoundPlayer.hpp"
+#include "NetworkProtocol.hpp"
 
 
 #include <SFML/System/NonCopyable.hpp>
@@ -37,6 +38,7 @@ public:
 	sf::FloatRect getViewBounds() const;
 	CommandQueue& getCommandQueue();
 	Aircraft* addAircraft(int identifier, float x, float y);
+	Aircraft* addAircraft(int identifier);
 	void removeAircraft(int identifier);
 	void setCurrentBattleFieldPosition(float lineY);
 	void setWorldHeight(float height);
@@ -47,12 +49,17 @@ public:
 	bool hasAlivePlayer() const;
 	int isLastOneStanding();
 
+	void setWorldScrollCompensation(float compensation);
+
 	Aircraft* getAircraft(int identifier) const;
+	sf::FloatRect getBattlefieldBounds() const;
 
 	void createPickup(sf::Vector2f position, Pickup::Type type);
+	bool pollGameAction(GameActions::Action& out);
 
 private:
-	void loadTextures();
+	void loadTextures(); 
+	void adaptPlayerPosition();
 	void adaptPlayerVelocity();
 	void handleCollisions();
 	void handleCollisionsPlatform();
@@ -102,10 +109,15 @@ private:
 	sf::FloatRect						mWorldBounds;
 	sf::Vector2f						mSpawnPosition;
 	sf::Vector2f						mGravity;
+	float								mScrollSpeed;
+	float								mScrollSpeedCompensation;
 	std::vector<Aircraft*>				mPlayerAircrafts;
 
 	std::vector<Aircraft*>				mActivePlayers;
 
 	BloomEffect							mBloomEffect;
+
+	bool								mNetworkedWorld;
+	NetworkNode*						mNetworkNode;
 	SpriteNode*							mFinishSprite;
 };

@@ -30,12 +30,16 @@ public:
 
 	void					handleEvent(const sf::Event& event, CommandQueue& commands);
 	void					handleRealtimeInput(CommandQueue& commands);
+	void					handleRealtimeNetworkInput(CommandQueue& commands);
+
+	// React to events or realtime state changes received over the network
+	void					handleNetworkEvent(Action action, CommandQueue& commands);
+	void					handleNetworkRealtimeChange(Action action, bool actionEnabled);
+
 	void 					setMissionStatus(MissionStatus status);
 	MissionStatus 			getMissionStatus() const;
 
-	/*
 	void					disableAllRealtimeActions();
-	*/
 	bool					isLocal() const;
 
 private:

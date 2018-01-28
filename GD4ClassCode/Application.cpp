@@ -4,7 +4,7 @@
 #include "StateIdentifiers.hpp"
 #include "TitleState.hpp"
 #include "GameState.hpp"
-
+#include "MultiplayerGameState.hpp"
 #include "MenuState.hpp"
 #include "PauseState.hpp"
 #include "SettingsState.hpp"
@@ -16,7 +16,7 @@
 const sf::Time Application::TimePerFrame = sf::seconds(1.f / 60.f);
 
 Application::Application()
-	: mWindow(sf::VideoMode(1024, 768), "Network", sf::Style::Close)
+	: mWindow(sf::VideoMode(1024, 768), "Super Trash Bros", sf::Style::Close)
 	, mTextures()
 	, mFonts()
 	, mMusic()
@@ -39,6 +39,7 @@ Application::Application()
 	mStatisticsText.setFont(mFonts.get(Fonts::Main));
 	mStatisticsText.setPosition(5.f, 5.f);
 	mStatisticsText.setCharacterSize(10u);
+	mStatisticsText.setColor(sf::Color::Yellow);
 
 	registerStates();
 	mStateStack.pushState(States::Title);
@@ -119,6 +120,8 @@ void Application::registerStates()
 	mStateStack.registerState<TitleState>(States::Title);
 	mStateStack.registerState<MenuState>(States::Menu);
 	mStateStack.registerState<GameState>(States::Game);
+	mStateStack.registerState<MultiplayerGameState>(States::HostGame, true);
+	mStateStack.registerState<MultiplayerGameState>(States::JoinGame, false);
 	mStateStack.registerState<PauseState>(States::Pause);
 	mStateStack.registerState<PauseState>(States::NetworkPause, true);
 	mStateStack.registerState<SettingsState>(States::Settings);
@@ -126,4 +129,6 @@ void Application::registerStates()
 	mStateStack.registerState<GameOverState>(States::MissionSuccess1, "Player 1 Wins!");
 	mStateStack.registerState<GameOverState>(States::MissionSuccess2, "Player 2 Wins!");
 	mStateStack.registerState<GameOverState>(States::MissionDraw, "You Suck, Draw!");
+	mStateStack.registerState<GameOverState>(States::GameOver, "Mission Failed!");
+	mStateStack.registerState<GameOverState>(States::MissionSuccess, "Mission Successful!");
 }
