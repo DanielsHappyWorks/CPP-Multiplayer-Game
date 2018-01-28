@@ -7,7 +7,9 @@
 TextNode::TextNode(const FontHolder& fonts, const std::string& text)
 {
 	mText.setFont(fonts.get(Fonts::Main));
-	mText.setCharacterSize(20);
+	mText.setCharacterSize(22);
+	mText.setColor(sf::Color::Yellow);
+	mText.setStyle(sf::Text::Italic);
 	setString(text);
 }
 

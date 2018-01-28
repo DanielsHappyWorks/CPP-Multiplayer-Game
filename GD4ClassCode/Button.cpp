@@ -18,6 +18,7 @@ namespace GUI
 		, mSounds(*context.sounds)
 	{
 		changeTexture(Normal);
+		mText.setStyle(sf::Text::Bold);
 
 		sf::FloatRect bounds = mSprite.getLocalBounds();
 		mText.setPosition(bounds.width / 2.f, bounds.height / 2.f);

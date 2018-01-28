@@ -15,6 +15,7 @@ TitleState::TitleState(StateStack& stack, Context context)
 
 	mText.setFont(context.fonts->get(Fonts::Main));
 	mText.setString("Press any key to start");
+	mText.setColor(sf::Color::Yellow);
 	centerOrigin(mText);
 	mText.setPosition(sf::Vector2f(context.window->getSize() / 2u));
 }
@@ -33,8 +34,12 @@ void TitleState::draw()
 bool TitleState::update(sf::Time dt)
 {
 	mTextEffectTime += dt;
-	if (mTextEffectTime >= sf::seconds(0.5f))
+	if (mShowText && mTextEffectTime >= sf::seconds(0.7f))
 	{
+		mShowText = !mShowText;
+		mTextEffectTime = sf::Time::Zero;
+	}
+	else if (!mShowText && mTextEffectTime >= sf::seconds(0.3f)) {
 		mShowText = !mShowText;
 		mTextEffectTime = sf::Time::Zero;
 	}

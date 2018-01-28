@@ -67,9 +67,9 @@ MenuState::MenuState(StateStack& stack, Context context)
 	});
 
 	mGUIContainer.pack(playButton);
-	mGUIContainer.pack(optionsPlayButton);
 	mGUIContainer.pack(hostPlayButton);
 	mGUIContainer.pack(joinPlayButton);
+	mGUIContainer.pack(optionsPlayButton);
 	mGUIContainer.pack(settingsButton);
 	mGUIContainer.pack(exitButton);
 
