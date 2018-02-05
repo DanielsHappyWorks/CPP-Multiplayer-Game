@@ -28,6 +28,8 @@ World::World(sf::RenderTarget& outputTarget, FontHolder& fonts, SoundPlayer& sou
 	, mSpawnPosition(mWorldView.getSize().x / 2.f, mWorldBounds.height - mWorldView.getSize().y / 2.f)
 	, mPlayerAircrafts()
 	, mActivePlayers()
+	, mNetworkedWorld(networked)
+	, mNetworkNode(nullptr)
 	, mFinishSprite(nullptr)
 	, mGravity(0.f, 250.f)
 {
@@ -42,7 +44,7 @@ World::World(sf::RenderTarget& outputTarget, FontHolder& fonts, SoundPlayer& sou
 
 void World::setWorldScrollCompensation(float compensation)
 {
-	mScrollSpeedCompensation = compensation;
+	//mScrollSpeedCompensation = compensation;
 }
 
 bool matchesCategories(SceneNode::Pair& colliders, Category::Type type1, Category::Type type2)
@@ -116,7 +118,7 @@ void World::update(sf::Time dt)
 
 void World::draw()
 {
-	if (PostEffect::isSupported())
+	if (PostEffect::isSupported()) //disable magical shaders here
 	{
 		mSceneTexture.clear();
 		mSceneTexture.setView(mWorldView);
@@ -432,6 +434,14 @@ void World::buildScene()
 	//Add sound effect node
 	std::unique_ptr<SoundNode> soundNode(new SoundNode(mSounds));
 	mSceneGraph.attachChild(std::move(soundNode));
+
+	// Add network node, if necessary
+	if (mNetworkedWorld)
+	{
+		std::unique_ptr<NetworkNode> networkNode(new NetworkNode());
+		mNetworkNode = networkNode.get();
+		mSceneGraph.attachChild(std::move(networkNode));
+	}
 
 	// Add platforms
 	addPlatforms();
