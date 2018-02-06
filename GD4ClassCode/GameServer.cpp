@@ -445,7 +445,6 @@ void GameServer::informWorldState(sf::TcpSocket& socket)
 {
 	sf::Packet packet;
 	packet << static_cast<sf::Int32>(Server::InitialState);
-	packet << mWorldHeight << mBattleFieldRect.top + mBattleFieldRect.height;
 	packet << static_cast<sf::Int32>(mAircraftCount);
 
 	for (std::size_t i = 0; i < mConnectedPlayers; ++i)

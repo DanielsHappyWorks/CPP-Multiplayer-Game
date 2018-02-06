@@ -49,8 +49,6 @@ public:
 	bool hasAlivePlayer() const;
 	int isLastOneStanding();
 
-	void setWorldScrollCompensation(float compensation);
-
 	Aircraft* getAircraft(int identifier) const;
 	sf::FloatRect getBattlefieldBounds() const;
 
@@ -93,6 +91,8 @@ private:
 		float y;
 	};
 
+public:
+	static bool							mShadersEnabled;
 
 private:
 	sf::RenderTarget&					mTarget;

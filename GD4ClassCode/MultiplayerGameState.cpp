@@ -376,12 +376,6 @@ void MultiplayerGameState::handlePacket(sf::Int32 packetType, sf::Packet& packet
 	case Server::InitialState:
 	{
 		sf::Int32 aircraftCount;
-		float worldHeight, currentScroll;
-		packet >> worldHeight >> currentScroll;
-
-		mWorld.setWorldHeight(worldHeight);
-		mWorld.setCurrentBattleFieldPosition(currentScroll);
-
 		packet >> aircraftCount;
 		for (sf::Int32 i = 0; i < aircraftCount; ++i)
 		{
@@ -459,9 +453,6 @@ void MultiplayerGameState::handlePacket(sf::Int32 packetType, sf::Packet& packet
 		packet >> currentWorldPosition >> aircraftCount;
 
 		float currentViewPosition = mWorld.getViewBounds().top + mWorld.getViewBounds().height;
-
-		// Set the world's scroll compensation according to whether the view is behind or too advanced
-		mWorld.setWorldScrollCompensation(currentViewPosition / currentWorldPosition);
 
 		for (sf::Int32 i = 0; i < aircraftCount; ++i)
 		{

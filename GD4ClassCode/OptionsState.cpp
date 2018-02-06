@@ -28,11 +28,19 @@ OptionsState::OptionsState(StateStack& stack, Context context)
 		isMuteMusicOn = true;
 	}
 
+	if (context.music->getVolume() == 0) {
+		isMuteMusicOn = false;
+	}
+	else {
+		isMuteMusicOn = true;
+	}
+
+	isShaderOn = World::mShadersEnabled;
 
 	mBackgroundSprite.setTexture(context.textures->get(Textures::TitleScreen));
 
 	auto backButton = std::make_shared<GUI::Button>(context);
-	backButton->setPosition(400.f, 450.f);
+	backButton->setPosition(400.f, 500.f);
 	backButton->setText("Back");
 	backButton->setCallback(std::bind(&OptionsState::requestStackPop, this));
 
@@ -72,12 +80,25 @@ OptionsState::OptionsState(StateStack& stack, Context context)
 	mBindingLabels[2] = std::make_shared<GUI::Label>("ON", *context.fonts);
 	mBindingLabels[2]->setPosition(620.f, 415.f);
 
+	auto shadersButton = std::make_shared<GUI::Button>(context);
+	shadersButton->setPosition(400.f, 450.f);
+	shadersButton->setText("shaders");
+	shadersButton->setCallback([this]()
+	{
+		setShadersEnabled();
+	});
+	//shaders
+	mBindingLabels[3] = std::make_shared<GUI::Label>("ON", *context.fonts);
+	mBindingLabels[3]->setPosition(620.f, 465.f);
+
 	mGUIContainer.pack(vSyncButton);
 	mGUIContainer.pack(mBindingLabels[0]);
 	mGUIContainer.pack(muteButtonMusic);
 	mGUIContainer.pack(mBindingLabels[1]);
 	mGUIContainer.pack(muteButtonSound);
 	mGUIContainer.pack(mBindingLabels[2]);
+	mGUIContainer.pack(shadersButton);
+	mGUIContainer.pack(mBindingLabels[3]);
 	mGUIContainer.pack(backButton);
 }
 
@@ -112,6 +133,15 @@ void OptionsState::updateLabels()
 		mBindingLabels[0]->setText("Off");
 	}
 
+	if (isShaderOn)
+	{
+		mBindingLabels[3]->setText("On");
+	}
+	else
+	{
+		mBindingLabels[3]->setText("Off");
+	}
+
 	if (isMuteMusicOn)
 	{
 		mBindingLabels[1]->setText("On");
@@ -141,6 +171,19 @@ void OptionsState::setVsync()
 	}
 
 	getContext().window->setVerticalSyncEnabled(isVsyncOn);
+}
+
+void OptionsState::setShadersEnabled()
+{
+	if (isShaderOn) {
+		isShaderOn = false;
+	}
+	else {
+		isShaderOn = true;
+	}
+
+	World::mShadersEnabled = isShaderOn;
+	//getContext().window->setVerticalSyncEnabled(isVsyncOn);
 }
 
 void OptionsState::setMuteMusic()

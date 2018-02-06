@@ -6,6 +6,7 @@
 #include "Container.hpp"
 #include "Button.hpp"
 #include "Label.hpp"
+#include "World.hpp"
 
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
@@ -27,14 +28,15 @@ private:
 	void							updateLabels();
 	bool							isVsyncOn;
 	void							setVsync();
+	bool							isShaderOn;
+	void							setShadersEnabled();
 	bool							isMuteMusicOn;
 	void							setMuteMusic();
 	bool							isMuteSoundOn;
 	void							setMuteSound();
 
-
 private:
 	sf::Sprite											mBackgroundSprite;
 	GUI::Container										mGUIContainer;
-	std::array<GUI::Label::Ptr, 3>						mBindingLabels;
+	std::array<GUI::Label::Ptr, 4>						mBindingLabels;
 };

@@ -42,10 +42,7 @@ World::World(sf::RenderTarget& outputTarget, FontHolder& fonts, SoundPlayer& sou
 	mWorldView.setCenter(mSpawnPosition);
 }
 
-void World::setWorldScrollCompensation(float compensation)
-{
-	//mScrollSpeedCompensation = compensation;
-}
+bool World::mShadersEnabled = true;
 
 bool matchesCategories(SceneNode::Pair& colliders, Category::Type type1, Category::Type type2)
 {
@@ -118,7 +115,7 @@ void World::update(sf::Time dt)
 
 void World::draw()
 {
-	if (PostEffect::isSupported()) //disable magical shaders here
+	if (PostEffect::isSupported() && mShadersEnabled)
 	{
 		mSceneTexture.clear();
 		mSceneTexture.setView(mWorldView);
