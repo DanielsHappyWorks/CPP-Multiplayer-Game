@@ -10,8 +10,8 @@ GameState::GameState(StateStack& stack, Context context)
 	, mPlayer2(nullptr, 2, context.keys2)
 {
 	//add both players
-	mWorld.addAircraft(1, 100.f, 100.f);
-	mWorld.addAircraft(2, 500.f, 100.f);
+	mWorld.addCharacter(1, 100.f, 100.f);
+	mWorld.addCharacter(2, 500.f, 100.f);
 
 	// Play game theme
 	context.music->play(Music::MissionTheme);

@@ -3,7 +3,7 @@
 #include "ResourceIdentifiers.hpp"
 #include "SceneNode.hpp"
 #include "SpriteNode.hpp"
-#include "Aircraft.hpp"
+#include "Character.hpp"
 #include "CommandQueue.hpp"
 #include "Command.hpp"
 #include "Pickup.hpp"
@@ -37,9 +37,9 @@ public:
 
 	sf::FloatRect getViewBounds() const;
 	CommandQueue& getCommandQueue();
-	Aircraft* addAircraft(int identifier, float x, float y);
-	Aircraft* addAircraft(int identifier);
-	void removeAircraft(int identifier);
+	Character* addCharacter(int identifier, float x, float y);
+	Character* addCharacter(int identifier);
+	void removeCharacter(int identifier);
 	void setCurrentBattleFieldPosition(float lineY);
 	void setWorldHeight(float height);
 
@@ -49,7 +49,7 @@ public:
 	bool hasAlivePlayer() const;
 	int isLastOneStanding();
 
-	Aircraft* getAircraft(int identifier) const;
+	Character* getCharacter(int identifier) const;
 	sf::FloatRect getBattlefieldBounds() const;
 
 	void createPickup(sf::Vector2f position, Pickup::Type type);
@@ -79,14 +79,14 @@ private:
 
 	struct SpawnPoint
 	{
-		SpawnPoint(Aircraft::Type type, float x, float y)
+		SpawnPoint(Character::Type type, float x, float y)
 			: type(type)
 			, x(x)
 			, y(y)
 		{
 		}
 
-		Aircraft::Type type;
+		Character::Type type;
 		float x;
 		float y;
 	};
@@ -111,9 +111,9 @@ private:
 	sf::Vector2f						mGravity;
 	float								mScrollSpeed;
 	float								mScrollSpeedCompensation;
-	std::vector<Aircraft*>				mPlayerAircrafts;
+	std::vector<Character*>				mPlayerCharacters;
 
-	std::vector<Aircraft*>				mActivePlayers;
+	std::vector<Character*>				mActivePlayers;
 
 	BloomEffect							mBloomEffect;
 

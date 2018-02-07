@@ -129,7 +129,7 @@ bool MultiplayerGameState::update(sf::Time dt)
 	{
 		mWorld.update(dt);
 
-		// Remove players whose aircrafts were destroyed
+		// Remove players whose characters were destroyed
 		bool foundLocalPlane = false;
 		for (auto itr = mPlayers.begin(); itr != mPlayers.end(); )
 		{
@@ -139,7 +139,7 @@ bool MultiplayerGameState::update(sf::Time dt)
 				foundLocalPlane = true;
 			}
 
-			if (!mWorld.getAircraft(itr->first))
+			if (!mWorld.getCharacter(itr->first))
 			{
 				itr = mPlayers.erase(itr);
 
@@ -223,8 +223,8 @@ bool MultiplayerGameState::update(sf::Time dt)
 
 			FOREACH(sf::Int32 identifier, mLocalPlayerIdentifiers)
 			{
-				if (Aircraft* aircraft = mWorld.getAircraft(identifier))
-					positionUpdatePacket << identifier << aircraft->getPosition().x << aircraft->getPosition().y << static_cast<sf::Int32>(aircraft->getHitpoints()) << static_cast<sf::Int32>(aircraft->getMissileAmmo());
+				if (Character* character = mWorld.getCharacter(identifier))
+					positionUpdatePacket << identifier << character->getPosition().x << character->getPosition().y << static_cast<sf::Int32>(character->getHitpoints()) << static_cast<sf::Int32>(character->getMissileAmmo());
 			}
 
 			mSocket.send(positionUpdatePacket);
@@ -336,15 +336,15 @@ void MultiplayerGameState::handlePacket(sf::Int32 packetType, sf::Packet& packet
 	// Sent by the server to order to spawn player 1 airplane on connect
 	case Server::SpawnSelf:
 	{
-		sf::Int32 aircraftIdentifier;
-		sf::Vector2f aircraftPosition;
-		packet >> aircraftIdentifier >> aircraftPosition.x >> aircraftPosition.y;
+		sf::Int32 characterIdentifier;
+		sf::Vector2f characterPosition;
+		packet >> characterIdentifier >> characterPosition.x >> characterPosition.y;
 
-		Aircraft* aircraft = mWorld.addAircraft(aircraftIdentifier);
-		aircraft->setPosition(aircraftPosition);
+		Character* character = mWorld.addCharacter(characterIdentifier);
+		character->setPosition(characterPosition);
 
-		mPlayers[aircraftIdentifier].reset(new Player(&mSocket, aircraftIdentifier, getContext().keys1));
-		mLocalPlayerIdentifiers.push_back(aircraftIdentifier);
+		mPlayers[characterIdentifier].reset(new Player(&mSocket, characterIdentifier, getContext().keys1));
+		mLocalPlayerIdentifiers.push_back(characterIdentifier);
 
 		mGameStarted = true;
 	} break;
@@ -352,67 +352,67 @@ void MultiplayerGameState::handlePacket(sf::Int32 packetType, sf::Packet& packet
 	// 
 	case Server::PlayerConnect:
 	{
-		sf::Int32 aircraftIdentifier;
-		sf::Vector2f aircraftPosition;
-		packet >> aircraftIdentifier >> aircraftPosition.x >> aircraftPosition.y;
+		sf::Int32 characterIdentifier;
+		sf::Vector2f characterPosition;
+		packet >> characterIdentifier >> characterPosition.x >> characterPosition.y;
 
-		Aircraft* aircraft = mWorld.addAircraft(aircraftIdentifier);
-		aircraft->setPosition(aircraftPosition);
+		Character* character = mWorld.addCharacter(characterIdentifier);
+		character->setPosition(characterPosition);
 
-		mPlayers[aircraftIdentifier].reset(new Player(&mSocket, aircraftIdentifier, nullptr));
+		mPlayers[characterIdentifier].reset(new Player(&mSocket, characterIdentifier, nullptr));
 	} break;
 
 	// 
 	case Server::PlayerDisconnect:
 	{
-		sf::Int32 aircraftIdentifier;
-		packet >> aircraftIdentifier;
+		sf::Int32 characterIdentifier;
+		packet >> characterIdentifier;
 
-		mWorld.removeAircraft(aircraftIdentifier);
-		mPlayers.erase(aircraftIdentifier);
+		mWorld.removeCharacter(characterIdentifier);
+		mPlayers.erase(characterIdentifier);
 	} break;
 
 	// 
 	case Server::InitialState:
 	{
-		sf::Int32 aircraftCount;
-		packet >> aircraftCount;
-		for (sf::Int32 i = 0; i < aircraftCount; ++i)
+		sf::Int32 characterCount;
+		packet >> characterCount;
+		for (sf::Int32 i = 0; i < characterCount; ++i)
 		{
-			sf::Int32 aircraftIdentifier;
+			sf::Int32 characterIdentifier;
 			sf::Int32 hitpoints;
 			sf::Int32 missileAmmo;
-			sf::Vector2f aircraftPosition;
-			packet >> aircraftIdentifier >> aircraftPosition.x >> aircraftPosition.y >> hitpoints >> missileAmmo;
+			sf::Vector2f characterPosition;
+			packet >> characterIdentifier >> characterPosition.x >> characterPosition.y >> hitpoints >> missileAmmo;
 
-			Aircraft* aircraft = mWorld.addAircraft(aircraftIdentifier);
-			aircraft->setPosition(aircraftPosition);
-			aircraft->setHitpoints(hitpoints);
-			aircraft->setMissileAmmo(missileAmmo);
+			Character* character = mWorld.addCharacter(characterIdentifier);
+			character->setPosition(characterPosition);
+			character->setHitpoints(hitpoints);
+			character->setMissileAmmo(missileAmmo);
 
-			mPlayers[aircraftIdentifier].reset(new Player(&mSocket, aircraftIdentifier, nullptr));
+			mPlayers[characterIdentifier].reset(new Player(&mSocket, characterIdentifier, nullptr));
 		}
 	} break;
 
 	//
 	case Server::AcceptCoopPartner:
 	{
-		sf::Int32 aircraftIdentifier;
-		packet >> aircraftIdentifier;
+		sf::Int32 characterIdentifier;
+		packet >> characterIdentifier;
 
-		mWorld.addAircraft(aircraftIdentifier);
-		mPlayers[aircraftIdentifier].reset(new Player(&mSocket, aircraftIdentifier, getContext().keys2));
-		mLocalPlayerIdentifiers.push_back(aircraftIdentifier);
+		mWorld.addCharacter(characterIdentifier);
+		mPlayers[characterIdentifier].reset(new Player(&mSocket, characterIdentifier, getContext().keys2));
+		mLocalPlayerIdentifiers.push_back(characterIdentifier);
 	} break;
 
 	// Player event (like missile fired) occurs
 	case Server::PlayerEvent:
 	{
-		sf::Int32 aircraftIdentifier;
+		sf::Int32 characterIdentifier;
 		sf::Int32 action;
-		packet >> aircraftIdentifier >> action;
+		packet >> characterIdentifier >> action;
 
-		auto itr = mPlayers.find(aircraftIdentifier);
+		auto itr = mPlayers.find(characterIdentifier);
 		if (itr != mPlayers.end())
 			itr->second->handleNetworkEvent(static_cast<Player::Action>(action), mWorld.getCommandQueue());
 	} break;
@@ -420,12 +420,12 @@ void MultiplayerGameState::handlePacket(sf::Int32 packetType, sf::Packet& packet
 	// Player's movement or fire keyboard state changes
 	case Server::PlayerRealtimeChange:
 	{
-		sf::Int32 aircraftIdentifier;
+		sf::Int32 characterIdentifier;
 		sf::Int32 action;
 		bool actionEnabled;
-		packet >> aircraftIdentifier >> action >> actionEnabled;
+		packet >> characterIdentifier >> action >> actionEnabled;
 
-		auto itr = mPlayers.find(aircraftIdentifier);
+		auto itr = mPlayers.find(characterIdentifier);
 		if (itr != mPlayers.end())
 			itr->second->handleNetworkRealtimeChange(static_cast<Player::Action>(action), actionEnabled);
 	} break;
@@ -449,23 +449,23 @@ void MultiplayerGameState::handlePacket(sf::Int32 packetType, sf::Packet& packet
 	case Server::UpdateClientState:
 	{
 		float currentWorldPosition;
-		sf::Int32 aircraftCount;
-		packet >> currentWorldPosition >> aircraftCount;
+		sf::Int32 characterCount;
+		packet >> currentWorldPosition >> characterCount;
 
 		float currentViewPosition = mWorld.getViewBounds().top + mWorld.getViewBounds().height;
 
-		for (sf::Int32 i = 0; i < aircraftCount; ++i)
+		for (sf::Int32 i = 0; i < characterCount; ++i)
 		{
-			sf::Vector2f aircraftPosition;
-			sf::Int32 aircraftIdentifier;
-			packet >> aircraftIdentifier >> aircraftPosition.x >> aircraftPosition.y;
+			sf::Vector2f characterPosition;
+			sf::Int32 characterIdentifier;
+			packet >> characterIdentifier >> characterPosition.x >> characterPosition.y;
 
-			Aircraft* aircraft = mWorld.getAircraft(aircraftIdentifier);
-			bool isLocalPlane = std::find(mLocalPlayerIdentifiers.begin(), mLocalPlayerIdentifiers.end(), aircraftIdentifier) != mLocalPlayerIdentifiers.end();
-			if (aircraft && !isLocalPlane)
+			Character* character = mWorld.getCharacter(characterIdentifier);
+			bool isLocalPlane = std::find(mLocalPlayerIdentifiers.begin(), mLocalPlayerIdentifiers.end(), characterIdentifier) != mLocalPlayerIdentifiers.end();
+			if (character && !isLocalPlane)
 			{
-				sf::Vector2f interpolatedPosition = aircraft->getPosition() + (aircraftPosition - aircraft->getPosition()) * 0.1f;
-				aircraft->setPosition(interpolatedPosition);
+				sf::Vector2f interpolatedPosition = character->getPosition() + (characterPosition - character->getPosition()) * 0.1f;
+				character->setPosition(interpolatedPosition);
 			}
 		}
 	} break;

@@ -1,5 +1,5 @@
 #include "DataTables.hpp"
-#include "Aircraft.hpp"
+#include "Character.hpp"
 #include "Projectile.hpp"
 #include "Pickup.hpp"
 #include "Platform.hpp"
@@ -8,16 +8,17 @@
 // For std::bind() placeholders _1, _2, ...
 using namespace std::placeholders;
 
-std::vector<AircraftData> initializeAircraftData()
+std::vector<CharacterData> initializeCharacterData()
 {
-	std::vector<AircraftData> data(Aircraft::TypeCount);
+	std::vector<CharacterData> data(Character::TypeCount);
 
-	data[Aircraft::Eagle].hitpoints = 3;
-	data[Aircraft::Eagle].speed = 400.f;
-	data[Aircraft::Eagle].fireInterval = sf::seconds(1);
-	data[Aircraft::Eagle].texture = Textures::Entities;
-	data[Aircraft::Eagle].textureRect = sf::IntRect(0, 0, 48, 64);
-	data[Aircraft::Eagle].hasRollAnimation = true;
+	data[Character::Eagle].hitpoints = 3;
+	data[Character::Eagle].speed = 400.f;
+	data[Character::Eagle].fireInterval = sf::seconds(1);
+	data[Character::Eagle].texture = Textures::Entities;
+	data[Character::Eagle].textureRect = sf::IntRect(0, 0, 48, 64);
+	data[Character::Eagle].hasRollAnimation = true;
+	data[Character::Eagle].rollAnimations = 4;
 
 	return data;
 }
@@ -45,19 +46,15 @@ std::vector<PickupData> initializePickupData()
 
 	data[Pickup::HealthRefill].texture = Textures::Entities;
 	data[Pickup::HealthRefill].textureRect = sf::IntRect(0, 64, 40, 40);
-	data[Pickup::HealthRefill].action = [](Aircraft& a) { a.repair(1); };
+	data[Pickup::HealthRefill].action = [](Character& a) { a.repair(1); };
 
 	data[Pickup::MissileRefill].texture = Textures::Entities;
 	data[Pickup::MissileRefill].textureRect = sf::IntRect(40, 64, 40, 40);
-	data[Pickup::MissileRefill].action = std::bind(&Aircraft::collectMissiles, _1, 1);
-
-	data[Pickup::FireSpread].texture = Textures::Entities;
-	data[Pickup::FireSpread].textureRect = sf::IntRect(80, 64, 40, 40);
-	data[Pickup::FireSpread].action = std::bind(&Aircraft::increaseSpread, _1);
+	data[Pickup::MissileRefill].action = std::bind(&Character::collectMissiles, _1, 1);
 
 	data[Pickup::FireRate].texture = Textures::Entities;
 	data[Pickup::FireRate].textureRect = sf::IntRect(120, 64, 40, 40);
-	data[Pickup::FireRate].action = std::bind(&Aircraft::increaseFireRate, _1);
+	data[Pickup::FireRate].action = std::bind(&Character::increaseFireRate, _1);
 
 	return data;
 }

@@ -1,6 +1,6 @@
 #include "Player.hpp"
 #include "CommandQueue.hpp"
-#include "Aircraft.hpp"
+#include "Character.hpp"
 #include "Foreach.hpp"
 #include "NetworkProtocol.hpp"
 
@@ -12,73 +12,73 @@
 
 using namespace std::placeholders;
 
-struct AircraftMover
+struct CharacterMover
 {
-	AircraftMover(float vx, float vy, int identifier)
-		: velocity(vx, vy), aircraftID(identifier)
+	CharacterMover(float vx, float vy, int identifier)
+		: velocity(vx, vy), characterID(identifier)
 	{
 	}
 
-	void operator() (Aircraft& aircraft, sf::Time) const
+	void operator() (Character& character, sf::Time) const
 	{
-		if (aircraft.getIdentifier() == aircraftID)
-			aircraft.accelerate(velocity * aircraft.getMaxSpeed());
+		if (character.getIdentifier() == characterID)
+			character.accelerate(velocity * character.getMaxSpeed());
 	}
 
 	sf::Vector2f velocity;
-	int aircraftID;
+	int characterID;
 };
 
-struct AircraftJumpTrigger
+struct CharacterJumpTrigger
 {
-	AircraftJumpTrigger(float vx, float vy, int identifier)
-		: velocity(vx, vy), aircraftID(identifier)
+	CharacterJumpTrigger(float vx, float vy, int identifier)
+		: velocity(vx, vy), characterID(identifier)
 	{
 	}
 
-	void operator() (Aircraft& aircraft, sf::Time) const
+	void operator() (Character& character, sf::Time) const
 	{
-		if (aircraft.getIdentifier() == aircraftID && aircraft.mIsGrounded)
+		if (character.getIdentifier() == characterID && character.mIsGrounded)
 		{
-			aircraft.accelerate(velocity.x, velocity.y);
-			aircraft.mIsGrounded = false;
+			character.accelerate(velocity.x, velocity.y);
+			character.mIsGrounded = false;
 		}	
 	}
 
 	sf::Vector2f velocity;
-	int aircraftID;
+	int characterID;
 };
 
-struct AircraftFireTrigger
+struct CharacterFireTrigger
 {
-	AircraftFireTrigger(int identifier)
-		: aircraftID(identifier)
+	CharacterFireTrigger(int identifier)
+		: characterID(identifier)
 	{
 	}
 
-	void operator() (Aircraft& aircraft, sf::Time) const
+	void operator() (Character& character, sf::Time) const
 	{
-		if (aircraft.getIdentifier() == aircraftID)
-			aircraft.fire();
+		if (character.getIdentifier() == characterID)
+			character.fire();
 	}
 
-	int aircraftID;
+	int characterID;
 };
 
-struct AircraftMissileTrigger
+struct CharacterMissileTrigger
 {
-	AircraftMissileTrigger(int identifier)
-		: aircraftID(identifier)
+	CharacterMissileTrigger(int identifier)
+		: characterID(identifier)
 	{
 	}
 
-	void operator() (Aircraft& aircraft, sf::Time) const
+	void operator() (Character& character, sf::Time) const
 	{
-		if (aircraft.getIdentifier() == aircraftID)
-			aircraft.launchMissile();
+		if (character.getIdentifier() == characterID)
+			character.launchMissile();
 	}
 
-	int aircraftID;
+	int characterID;
 };
 
 Player::Player(sf::TcpSocket* socket, sf::Int32 identifier, const KeyBinding* binding)
@@ -90,9 +90,9 @@ Player::Player(sf::TcpSocket* socket, sf::Int32 identifier, const KeyBinding* bi
 	// Set initial action bindings
 	initializeActions();
 
-	// Assign all categories to player's aircraft
+	// Assign all categories to player's character
 	FOREACH(auto& pair, mActionBinding)
-		pair.second.category = Category::PlayerAircraft;
+		pair.second.category = Category::PlayerCharacter;
 }
 
 void Player::handleEvent(const sf::Event& event, CommandQueue& commands)
@@ -202,11 +202,11 @@ Player::MissionStatus Player::getMissionStatus() const
 
 void Player::initializeActions()
 {
-	mActionBinding[PlayerAction::MoveLeft].action = derivedAction<Aircraft>(AircraftMover(-1, 0, mIdentifier));
-	mActionBinding[PlayerAction::MoveRight].action = derivedAction<Aircraft>(AircraftMover(+1, 0, mIdentifier));
-	mActionBinding[PlayerAction::MoveUp].action = derivedAction<Aircraft>(AircraftJumpTrigger(0, -7500, mIdentifier));
-	mActionBinding[PlayerAction::Fire].action = derivedAction<Aircraft>(AircraftFireTrigger(mIdentifier));
-	mActionBinding[PlayerAction::LaunchMissile].action = derivedAction<Aircraft>(AircraftMissileTrigger(mIdentifier));
+	mActionBinding[PlayerAction::MoveLeft].action = derivedAction<Character>(CharacterMover(-1, 0, mIdentifier));
+	mActionBinding[PlayerAction::MoveRight].action = derivedAction<Character>(CharacterMover(+1, 0, mIdentifier));
+	mActionBinding[PlayerAction::MoveUp].action = derivedAction<Character>(CharacterJumpTrigger(0, -7500, mIdentifier));
+	mActionBinding[PlayerAction::Fire].action = derivedAction<Character>(CharacterFireTrigger(mIdentifier));
+	mActionBinding[PlayerAction::LaunchMissile].action = derivedAction<Character>(CharacterMissileTrigger(mIdentifier));
 }
 
 
