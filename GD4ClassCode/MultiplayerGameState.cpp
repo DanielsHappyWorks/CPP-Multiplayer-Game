@@ -333,15 +333,14 @@ void MultiplayerGameState::handlePacket(sf::Int32 packetType, sf::Packet& packet
 		}
 	} break;
 
-	// Sent by the server to order to spawn player 1 airplane on connect
+	// Sent by the server to order to spawn player 1 character on connect
 	case Server::SpawnSelf:
 	{
 		sf::Int32 characterIdentifier;
 		sf::Vector2f characterPosition;
 		packet >> characterIdentifier >> characterPosition.x >> characterPosition.y;
 
-		Character* character = mWorld.addCharacter(characterIdentifier);
-		character->setPosition(characterPosition);
+		Character* character = mWorld.addCharacter(characterIdentifier, characterPosition.x, characterPosition.y);
 
 		mPlayers[characterIdentifier].reset(new Player(&mSocket, characterIdentifier, getContext().keys1));
 		mLocalPlayerIdentifiers.push_back(characterIdentifier);
@@ -385,10 +384,7 @@ void MultiplayerGameState::handlePacket(sf::Int32 packetType, sf::Packet& packet
 			sf::Vector2f characterPosition;
 			packet >> characterIdentifier >> characterPosition.x >> characterPosition.y >> hitpoints >> missileAmmo;
 
-			Character* character = mWorld.addCharacter(characterIdentifier);
-			character->setPosition(characterPosition);
-			character->setHitpoints(hitpoints);
-			character->setMissileAmmo(missileAmmo);
+			Character* character = mWorld.addCharacter(characterIdentifier, characterPosition.x, characterPosition.y);
 
 			mPlayers[characterIdentifier].reset(new Player(&mSocket, characterIdentifier, nullptr));
 		}
@@ -435,17 +431,6 @@ void MultiplayerGameState::handlePacket(sf::Int32 packetType, sf::Packet& packet
 		requestStackPush(States::MissionSuccess);
 	} break;
 
-	// Pickup created
-	case Server::SpawnPickup:
-	{
-		sf::Int32 type;
-		sf::Vector2f position;
-		packet >> type >> position.x >> position.y;
-
-		mWorld.createPickup(position, static_cast<Pickup::Type>(type));
-	} break;
-
-	//
 	case Server::UpdateClientState:
 	{
 		float currentWorldPosition;
@@ -465,7 +450,7 @@ void MultiplayerGameState::handlePacket(sf::Int32 packetType, sf::Packet& packet
 			if (character && !isLocalPlane)
 			{
 				sf::Vector2f interpolatedPosition = character->getPosition() + (characterPosition - character->getPosition()) * 0.1f;
-				character->setPosition(interpolatedPosition);
+				character->setPosition(characterPosition.x, characterPosition.y);
 			}
 		}
 	} break;

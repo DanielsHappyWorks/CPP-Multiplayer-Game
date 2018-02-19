@@ -204,7 +204,7 @@ void Player::initializeActions()
 {
 	mActionBinding[PlayerAction::MoveLeft].action = derivedAction<Character>(CharacterMover(-1, 0, mIdentifier));
 	mActionBinding[PlayerAction::MoveRight].action = derivedAction<Character>(CharacterMover(+1, 0, mIdentifier));
-	mActionBinding[PlayerAction::MoveUp].action = derivedAction<Character>(CharacterJumpTrigger(0, -7500, mIdentifier));
+	mActionBinding[PlayerAction::Jump].action = derivedAction<Character>(CharacterJumpTrigger(0, -7500, mIdentifier));
 	mActionBinding[PlayerAction::Fire].action = derivedAction<Character>(CharacterFireTrigger(mIdentifier));
 	mActionBinding[PlayerAction::LaunchMissile].action = derivedAction<Character>(CharacterMissileTrigger(mIdentifier));
 }

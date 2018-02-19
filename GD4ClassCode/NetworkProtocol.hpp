@@ -46,8 +46,7 @@ namespace PlayerActions
 	{
 		MoveLeft,
 		MoveRight,
-		MoveUp,
-		MoveDown,
+		Jump,
 		Fire,
 		LaunchMissile,
 		ActionCount

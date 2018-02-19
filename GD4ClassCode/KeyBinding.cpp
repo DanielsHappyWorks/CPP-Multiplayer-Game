@@ -13,8 +13,7 @@ KeyBinding::KeyBinding(int controlPreconfiguration)
 	{
 		mKeyMap[sf::Keyboard::Left] = PlayerAction::MoveLeft;
 		mKeyMap[sf::Keyboard::Right] = PlayerAction::MoveRight;
-		mKeyMap[sf::Keyboard::Up] = PlayerAction::MoveUp;
-		mKeyMap[sf::Keyboard::Down] = PlayerAction::MoveDown;
+		mKeyMap[sf::Keyboard::Up] = PlayerAction::Jump;
 		mKeyMap[sf::Keyboard::Space] = PlayerAction::Fire;
 		mKeyMap[sf::Keyboard::M] = PlayerAction::LaunchMissile;
 	}
@@ -23,8 +22,7 @@ KeyBinding::KeyBinding(int controlPreconfiguration)
 		// Player 2
 		mKeyMap[sf::Keyboard::A] = PlayerAction::MoveLeft;
 		mKeyMap[sf::Keyboard::D] = PlayerAction::MoveRight;
-		mKeyMap[sf::Keyboard::W] = PlayerAction::MoveUp;
-		mKeyMap[sf::Keyboard::S] = PlayerAction::MoveDown;
+		mKeyMap[sf::Keyboard::W] = PlayerAction::Jump;
 		mKeyMap[sf::Keyboard::F] = PlayerAction::Fire;
 		mKeyMap[sf::Keyboard::R] = PlayerAction::LaunchMissile;
 	}
@@ -91,8 +89,7 @@ bool isRealtimeAction(PlayerAction::Type action)
 	{
 	case PlayerAction::MoveLeft:
 	case PlayerAction::MoveRight:
-	case PlayerAction::MoveDown:
-	case PlayerAction::MoveUp:
+	case PlayerAction::Jump:
 	case PlayerAction::Fire:
 		return true;
 

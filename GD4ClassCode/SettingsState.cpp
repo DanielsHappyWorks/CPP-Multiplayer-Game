@@ -16,10 +16,9 @@ SettingsState::SettingsState(StateStack& stack, Context context)
 	{
 		addButtonLabel(PlayerAction::MoveLeft, x, 0, "Move Left", context);
 		addButtonLabel(PlayerAction::MoveRight, x, 1, "Move Right", context);
-		addButtonLabel(PlayerAction::MoveUp, x, 2, "Move Up", context);
-		addButtonLabel(PlayerAction::MoveDown, x, 3, "Move Down", context);
-		addButtonLabel(PlayerAction::Fire, x, 4, "Fire", context);
-		addButtonLabel(PlayerAction::LaunchMissile, x, 5, "Missile", context);
+		addButtonLabel(PlayerAction::Jump, x, 2, "Jump", context);
+		addButtonLabel(PlayerAction::Fire, x, 3, "Fire", context);
+		addButtonLabel(PlayerAction::LaunchMissile, x, 4, "Missile", context);
 	}
 
 	updateLabels();
