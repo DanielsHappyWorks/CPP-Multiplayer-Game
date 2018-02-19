@@ -66,7 +66,7 @@ MultiplayerGameState::MultiplayerGameState(StateStack& stack, Context context, b
 	sf::IpAddress ip;
 	if (isHost)
 	{
-		mGameServer.reset(new GameServer(sf::Vector2f(mWindow.getSize())));
+		mGameServer.reset(new GameServer(mWindow.getSize()));
 		ip = "127.0.0.1";
 	}
 	else
@@ -433,11 +433,8 @@ void MultiplayerGameState::handlePacket(sf::Int32 packetType, sf::Packet& packet
 
 	case Server::UpdateClientState:
 	{
-		float currentWorldPosition;
 		sf::Int32 characterCount;
-		packet >> currentWorldPosition >> characterCount;
-
-		float currentViewPosition = mWorld.getViewBounds().top + mWorld.getViewBounds().height;
+		packet >> characterCount;
 
 		for (sf::Int32 i = 0; i < characterCount; ++i)
 		{

@@ -14,15 +14,13 @@ GameServer::RemotePeer::RemotePeer()
 	socket.setBlocking(false);
 }
 
-GameServer::GameServer(sf::Vector2f battlefieldSize)
+GameServer::GameServer(sf::Vector2u windowSize)
 	: mThread(&GameServer::executionThread, this)
 	, mListeningState(false)
 	, mClientTimeoutTime(sf::seconds(3.f))
 	, mMaxConnectedPlayers(10)
 	, mConnectedPlayers(0)
-	, mWorldHeight(5000.f)
-	, mBattleFieldRect(0.f, mWorldHeight - battlefieldSize.y, battlefieldSize.x, battlefieldSize.y)
-	, mBattleFieldScrollSpeed(-50.f)
+	, mWindowSize(windowSize)
 	, mCharacterCount(0)
 	, mPeers(1)
 	, mCharacterIdentifierCounter(1)
@@ -118,18 +116,17 @@ void GameServer::executionThread()
 		handleIncomingPackets();
 		handleIncomingConnections();
 
-		stepTime += stepClock.getElapsedTime();
-		stepClock.restart();
+		//stepTime += stepClock.getElapsedTime();
+		//stepClock.restart();
 
 		tickTime += tickClock.getElapsedTime();
 		tickClock.restart();
 
 		// Fixed update step
-		while (stepTime >= stepInterval)
-		{
-			mBattleFieldRect.top += mBattleFieldScrollSpeed * stepInterval.asSeconds();
-			stepTime -= stepInterval;
-		}
+		//while (stepTime >= stepInterval)
+		//{
+			//stepTime -= stepInterval;
+		//}
 
 		// Fixed tick step
 		while (tickTime >= tickInterval)
@@ -243,7 +240,7 @@ void GameServer::handleIncomingPacket(sf::Packet& packet, RemotePeer& receivingP
 	case Client::RequestCoopPartner:
 	{
 		receivingPeer.characterIdentifiers.push_back(mCharacterIdentifierCounter);
-		mCharacterInfo[mCharacterIdentifierCounter].position = sf::Vector2f(mBattleFieldRect.width / 2, mBattleFieldRect.top + mBattleFieldRect.height / 2);
+		mCharacterInfo[mCharacterIdentifierCounter].position = sf::Vector2f(mWindowSize.x / 2, mWindowSize.y / 2);
 		mCharacterInfo[mCharacterIdentifierCounter].hitpoints = 100;
 		mCharacterInfo[mCharacterIdentifierCounter].missileAmmo = 2;
 
@@ -296,7 +293,6 @@ void GameServer::updateClientState()
 {
 	sf::Packet updateClientStatePacket;
 	updateClientStatePacket << static_cast<sf::Int32>(Server::UpdateClientState);
-	updateClientStatePacket << static_cast<float>(mBattleFieldRect.top + mBattleFieldRect.height);
 	updateClientStatePacket << static_cast<sf::Int32>(mCharacterInfo.size());
 
 	FOREACH(auto character, mCharacterInfo)
@@ -313,7 +309,7 @@ void GameServer::handleIncomingConnections()
 	if (mListenerSocket.accept(mPeers[mConnectedPlayers]->socket) == sf::TcpListener::Done)
 	{
 		// order the new client to spawn its own plane ( player 1 )
-		mCharacterInfo[mCharacterIdentifierCounter].position = sf::Vector2f(mBattleFieldRect.width / 2, mBattleFieldRect.top + mBattleFieldRect.height / 2);
+		mCharacterInfo[mCharacterIdentifierCounter].position = sf::Vector2f(mWindowSize.x / 2, mWindowSize.y / 2);
 		mCharacterInfo[mCharacterIdentifierCounter].hitpoints = 100;
 		mCharacterInfo[mCharacterIdentifierCounter].missileAmmo = 2;
 

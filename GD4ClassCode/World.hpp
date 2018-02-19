@@ -40,7 +40,6 @@ public:
 	Character* addCharacter(int identifier, float x, float y);
 	Character* addCharacter(int identifier);
 	void removeCharacter(int identifier);
-	void setCurrentBattleFieldPosition(float lineY);
 	void setWorldHeight(float height);
 
 	void addPlatform(float x, float y, Platform::Type type);

@@ -16,7 +16,7 @@
 class GameServer
 {
 public:
-	explicit							GameServer(sf::Vector2f battlefieldSize);
+	explicit							GameServer(sf::Vector2u windowSize);
 	~GameServer();
 
 	void								notifyPlayerSpawn(sf::Int32 characterIdentifier);
@@ -78,9 +78,7 @@ private:
 	std::size_t							mMaxConnectedPlayers;
 	std::size_t							mConnectedPlayers;
 
-	float								mWorldHeight;
-	sf::FloatRect						mBattleFieldRect;
-	float								mBattleFieldScrollSpeed;
+	sf::Vector2u						mWindowSize;
 
 	std::size_t							mCharacterCount;
 	std::map<sf::Int32, CharacterInfo>	mCharacterInfo;

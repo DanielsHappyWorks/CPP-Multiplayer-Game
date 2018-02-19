@@ -182,12 +182,6 @@ bool World::pollGameAction(GameActions::Action& out)
 	return mNetworkNode->pollGameAction(out);
 }
 
-void World::setCurrentBattleFieldPosition(float lineY)
-{
-	mWorldView.setCenter(mWorldView.getCenter().x, lineY - mWorldView.getSize().y / 2);
-	mSpawnPosition.y = mWorldBounds.height;
-}
-
 void World::setWorldHeight(float height)
 {
 	mWorldBounds.height = height;
