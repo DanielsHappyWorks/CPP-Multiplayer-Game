@@ -1,11 +1,9 @@
-﻿  World.cpp
-f:\users\grapecauliflower\documents\cpp-multiplayer-game\gd4classcode\world.cpp(82): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+﻿  MultiplayerGameState.cpp
+  GameServer.cpp
+f:\users\grapecauliflower\documents\cpp-multiplayer-game\gd4classcode\gameserver.cpp(243): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
+f:\users\grapecauliflower\documents\cpp-multiplayer-game\gd4classcode\gameserver.cpp(315): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
   Generating Code...
-f:\users\grapecauliflower\documents\cpp-multiplayer-game\gd4classcode\world.cpp(209): warning C4715: 'World::isLastOneStanding': not all control paths return a value
   Compiling...
-  OptionsState.cpp
-  MultiplayerGameState.cpp
-  GameState.cpp
   Application.cpp
   Generating Code...
   GD4ClassCode.vcxproj -> F:\Users\GrapeCauliflower\Documents\CPP-Multiplayer-Game\Debug\GD4ClassCode.exe

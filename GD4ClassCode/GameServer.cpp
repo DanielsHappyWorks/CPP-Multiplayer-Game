@@ -243,6 +243,7 @@ void GameServer::handleIncomingPacket(sf::Packet& packet, RemotePeer& receivingP
 		mCharacterInfo[mCharacterIdentifierCounter].position = sf::Vector2f(mWindowSize.x / 2, mWindowSize.y / 2);
 		mCharacterInfo[mCharacterIdentifierCounter].hitpoints = 100;
 		mCharacterInfo[mCharacterIdentifierCounter].missileAmmo = 2;
+		mCharacterInfo[mCharacterIdentifierCounter].knockback = 0;
 
 		sf::Packet requestPacket;
 		requestPacket << static_cast<sf::Int32>(Server::AcceptCoopPartner);
@@ -279,11 +280,13 @@ void GameServer::handleIncomingPacket(sf::Packet& packet, RemotePeer& receivingP
 			sf::Int32 characterIdentifier;
 			sf::Int32 characterHitpoints;
 			sf::Int32 missileAmmo;
+			sf::Int32 characterKnockback;
 			sf::Vector2f characterPosition;
-			packet >> characterIdentifier >> characterPosition.x >> characterPosition.y >> characterHitpoints >> missileAmmo;
+			packet >> characterIdentifier >> characterPosition.x >> characterPosition.y >> characterHitpoints >> missileAmmo >> characterKnockback;
 			mCharacterInfo[characterIdentifier].position = characterPosition;
 			mCharacterInfo[characterIdentifier].hitpoints = characterHitpoints;
 			mCharacterInfo[characterIdentifier].missileAmmo = missileAmmo;
+			mCharacterInfo[characterIdentifier].knockback = characterKnockback;
 		}
 	} break;
 	}
@@ -312,6 +315,7 @@ void GameServer::handleIncomingConnections()
 		mCharacterInfo[mCharacterIdentifierCounter].position = sf::Vector2f(mWindowSize.x / 2, mWindowSize.y / 2);
 		mCharacterInfo[mCharacterIdentifierCounter].hitpoints = 100;
 		mCharacterInfo[mCharacterIdentifierCounter].missileAmmo = 2;
+		mCharacterInfo[mCharacterIdentifierCounter].knockback = 0;
 
 		sf::Packet packet;
 		packet << static_cast<sf::Int32>(Server::SpawnSelf);
@@ -385,7 +389,7 @@ void GameServer::informWorldState(sf::TcpSocket& socket)
 		if (mPeers[i]->ready)
 		{
 			FOREACH(sf::Int32 identifier, mPeers[i]->characterIdentifiers)
-				packet << identifier << mCharacterInfo[identifier].position.x << mCharacterInfo[identifier].position.y << mCharacterInfo[identifier].hitpoints << mCharacterInfo[identifier].missileAmmo;
+				packet << identifier << mCharacterInfo[identifier].position.x << mCharacterInfo[identifier].position.y << mCharacterInfo[identifier].hitpoints << mCharacterInfo[identifier].missileAmmo << mCharacterInfo[identifier].knockback;
 		}
 	}
 

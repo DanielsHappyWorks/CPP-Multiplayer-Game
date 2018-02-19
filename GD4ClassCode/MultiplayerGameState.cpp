@@ -224,7 +224,7 @@ bool MultiplayerGameState::update(sf::Time dt)
 			FOREACH(sf::Int32 identifier, mLocalPlayerIdentifiers)
 			{
 				if (Character* character = mWorld.getCharacter(identifier))
-					positionUpdatePacket << identifier << character->getPosition().x << character->getPosition().y << static_cast<sf::Int32>(character->getHitpoints()) << static_cast<sf::Int32>(character->getMissileAmmo());
+					positionUpdatePacket << identifier << character->getPosition().x << character->getPosition().y << static_cast<sf::Int32>(character->getHitpoints()) << static_cast<sf::Int32>(character->getMissileAmmo()) << static_cast<sf::Int32>(character->getKnockback());
 			}
 
 			mSocket.send(positionUpdatePacket);
