@@ -1,10 +1,6 @@
 ﻿  MultiplayerGameState.cpp
   GameServer.cpp
-f:\users\grapecauliflower\documents\cpp-multiplayer-game\gd4classcode\gameserver.cpp(243): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
-f:\users\grapecauliflower\documents\cpp-multiplayer-game\gd4classcode\gameserver.cpp(315): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
-  Generating Code...
-  Compiling...
-  Application.cpp
+f:\users\grapecauliflower\documents\cpp-multiplayer-game\gd4classcode\gameserver.cpp(293): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
   Generating Code...
   GD4ClassCode.vcxproj -> F:\Users\GrapeCauliflower\Documents\CPP-Multiplayer-Game\Debug\GD4ClassCode.exe
   GD4ClassCode.vcxproj -> F:\Users\GrapeCauliflower\Documents\CPP-Multiplayer-Game\Debug\GD4ClassCode.pdb (Partial PDB)

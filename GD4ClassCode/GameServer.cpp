@@ -4,6 +4,7 @@
 #include "Utility.hpp"
 #include "Pickup.hpp"
 #include "Character.hpp"
+#include "DataTables.hpp"
 
 #include <SFML/Network/Packet.hpp>
 
@@ -144,29 +145,39 @@ void GameServer::tick()
 {
 	updateClientState();
 
-	// Check for mission success = all planes with position.y < offset
-	bool allCharactersDone = true;
+	// Check for game end
+	bool lastCharacterStandingCounter = 0;
 	FOREACH(auto pair, mCharacterInfo)
 	{
-		// As long as one player has not crossed the finish line yet, set variable to false
-		if (pair.second.position.y > 0.f)
-			allCharactersDone = false;
+		if (pair.second.hitpoints > 0)
+		{
+			lastCharacterStandingCounter++;
+		}	
 	}
-	if (allCharactersDone)
+	if (mCharacterInfo.size() >= 2)
 	{
-		sf::Packet missionSuccessPacket;
-		missionSuccessPacket << static_cast<sf::Int32>(Server::MissionSuccess);
-		sendToAll(missionSuccessPacket);
+		if (lastCharacterStandingCounter == 1) {
+			//sf::Packet missionSuccessPacket;
+			//missionSuccessPacket << static_cast<sf::Int32>(Server::MissionSuccess);
+			//sendToAll(missionSuccessPacket);
+		}
+		else if (lastCharacterStandingCounter == 0) {
+			sf::Packet missionSuccessPacket;
+			missionSuccessPacket << static_cast<sf::Int32>(Server::MissionSuccess);
+			sendToAll(missionSuccessPacket);
+		}
+		
 	}
 
-	// Remove IDs of character that have been destroyed (relevant if a client has two, and loses one)
+	//Remove IDs of character that have been destroyed (relevant if a client has two, and loses one)
+	/*
 	for (auto itr = mCharacterInfo.begin(); itr != mCharacterInfo.end(); )
 	{
 		if (itr->second.hitpoints <= 0)
 			mCharacterInfo.erase(itr++);
 		else
 			++itr;
-	}
+	}*/
 }
 
 sf::Time GameServer::now() const
@@ -237,39 +248,6 @@ void GameServer::handleIncomingPacket(sf::Packet& packet, RemotePeer& receivingP
 		notifyPlayerRealtimeChange(characterIdentifier, action, actionEnabled);
 	} break;
 
-	case Client::RequestCoopPartner:
-	{
-		receivingPeer.characterIdentifiers.push_back(mCharacterIdentifierCounter);
-		mCharacterInfo[mCharacterIdentifierCounter].position = sf::Vector2f(mWindowSize.x / 2, mWindowSize.y / 2);
-		mCharacterInfo[mCharacterIdentifierCounter].hitpoints = 100;
-		mCharacterInfo[mCharacterIdentifierCounter].missileAmmo = 2;
-		mCharacterInfo[mCharacterIdentifierCounter].knockback = 0;
-
-		sf::Packet requestPacket;
-		requestPacket << static_cast<sf::Int32>(Server::AcceptCoopPartner);
-		requestPacket << mCharacterIdentifierCounter;
-		requestPacket << mCharacterInfo[mCharacterIdentifierCounter].position.x;
-		requestPacket << mCharacterInfo[mCharacterIdentifierCounter].position.y;
-
-		receivingPeer.socket.send(requestPacket);
-		mCharacterCount++;
-
-		// Inform every other peer about this new plane
-		FOREACH(PeerPtr& peer, mPeers)
-		{
-			if (peer.get() != &receivingPeer && peer->ready)
-			{
-				sf::Packet notifyPacket;
-				notifyPacket << static_cast<sf::Int32>(Server::PlayerConnect);
-				notifyPacket << mCharacterIdentifierCounter;
-				notifyPacket << mCharacterInfo[mCharacterIdentifierCounter].position.x;
-				notifyPacket << mCharacterInfo[mCharacterIdentifierCounter].position.y;
-				peer->socket.send(notifyPacket);
-			}
-		}
-		mCharacterIdentifierCounter++;
-	} break;
-
 	case Client::PositionUpdate:
 	{
 		sf::Int32 numCharacters;
@@ -280,7 +258,7 @@ void GameServer::handleIncomingPacket(sf::Packet& packet, RemotePeer& receivingP
 			sf::Int32 characterIdentifier;
 			sf::Int32 characterHitpoints;
 			sf::Int32 missileAmmo;
-			sf::Int32 characterKnockback;
+			float characterKnockback;
 			sf::Vector2f characterPosition;
 			packet >> characterIdentifier >> characterPosition.x >> characterPosition.y >> characterHitpoints >> missileAmmo >> characterKnockback;
 			mCharacterInfo[characterIdentifier].position = characterPosition;
@@ -368,7 +346,7 @@ void GameServer::handleDisconnections()
 				setListening(true);
 			}
 
-			broadcastMessage("An ally has disconnected.");
+			broadcastMessage("An oponent has disconnected.");
 		}
 		else
 		{

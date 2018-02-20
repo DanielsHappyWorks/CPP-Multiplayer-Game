@@ -43,7 +43,7 @@ private:
 		sf::Vector2f				position;
 		sf::Int32					hitpoints;
 		sf::Int32                   missileAmmo;
-		sf::Int32                   knockback;
+		float						knockback;
 		std::map<sf::Int32, bool>	realtimeActions;
 	};
 

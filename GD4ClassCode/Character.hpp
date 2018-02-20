@@ -41,7 +41,7 @@ public:
 	void					playLocalSound(CommandQueue& commands, SoundEffect::ID effect);
 	int						getIdentifier();
 	void					setIdentifier(int identifier);
-	float						getKnockback();
+	float					getKnockback();
 	void					setKnockback(float increment);
 	void					incrementKnockback(float increment);
 	int						getMissileAmmo() const;

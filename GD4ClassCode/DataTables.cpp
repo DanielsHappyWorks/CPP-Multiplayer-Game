@@ -13,6 +13,8 @@ std::vector<CharacterData> initializeCharacterData()
 	std::vector<CharacterData> data(Character::TypeCount);
 
 	data[Character::Eagle].hitpoints = 3;
+	data[Character::Eagle].knockback = 40.f;
+	data[Character::Eagle].missiles = 5;
 	data[Character::Eagle].speed = 400.f;
 	data[Character::Eagle].fireInterval = sf::seconds(1);
 	data[Character::Eagle].texture = Textures::Entities;

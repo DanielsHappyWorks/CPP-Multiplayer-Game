@@ -42,12 +42,6 @@ MultiplayerGameState::MultiplayerGameState(StateStack& stack, Context context, b
 	mBroadcastText.setFont(context.fonts->get(Fonts::Main));
 	mBroadcastText.setPosition(1024.f / 2, 100.f);
 
-	mPlayerInvitationText.setFont(context.fonts->get(Fonts::Main));
-	mPlayerInvitationText.setCharacterSize(20);
-	mPlayerInvitationText.setColor(sf::Color::White);
-	mPlayerInvitationText.setString("Press Enter to spawn player 2");
-	mPlayerInvitationText.setPosition(1000 - mPlayerInvitationText.getLocalBounds().width, 760 - mPlayerInvitationText.getLocalBounds().height);
-
 	// We reuse this text for "Attempt to connect" and "Failed to connect" messages
 	mFailedConnectionText.setFont(context.fonts->get(Fonts::Main));
 	mFailedConnectionText.setString("Attempting to connect...");
@@ -224,7 +218,7 @@ bool MultiplayerGameState::update(sf::Time dt)
 			FOREACH(sf::Int32 identifier, mLocalPlayerIdentifiers)
 			{
 				if (Character* character = mWorld.getCharacter(identifier))
-					positionUpdatePacket << identifier << character->getPosition().x << character->getPosition().y << static_cast<sf::Int32>(character->getHitpoints()) << static_cast<sf::Int32>(character->getMissileAmmo()) << static_cast<sf::Int32>(character->getKnockback());
+					positionUpdatePacket << identifier << character->getPosition().x << character->getPosition().y << static_cast<sf::Int32>(character->getHitpoints()) << static_cast<sf::Int32>(character->getMissileAmmo()) << static_cast<float>(character->getKnockback());
 			}
 
 			mSocket.send(positionUpdatePacket);
@@ -263,17 +257,8 @@ bool MultiplayerGameState::handleEvent(const sf::Event& event)
 
 	if (event.type == sf::Event::KeyPressed)
 	{
-		// Enter pressed, add second player co-op (only if we are one player)
-		if (event.key.code == sf::Keyboard::Return && mLocalPlayerIdentifiers.size() == 1)
-		{
-			sf::Packet packet;
-			packet << static_cast<sf::Int32>(Client::RequestCoopPartner);
-
-			mSocket.send(packet);
-		}
-
 		// Escape pressed, trigger the pause screen
-		else if (event.key.code == sf::Keyboard::Escape)
+		if (event.key.code == sf::Keyboard::Escape)
 		{
 			disableAllRealtimeActions();
 			requestStackPush(States::NetworkPause);
@@ -356,7 +341,6 @@ void MultiplayerGameState::handlePacket(sf::Int32 packetType, sf::Packet& packet
 		packet >> characterIdentifier >> characterPosition.x >> characterPosition.y;
 
 		Character* character = mWorld.addCharacter(characterIdentifier);
-		character->setPosition(characterPosition);
 
 		mPlayers[characterIdentifier].reset(new Player(&mSocket, characterIdentifier, nullptr));
 	} break;
@@ -379,26 +363,13 @@ void MultiplayerGameState::handlePacket(sf::Int32 packetType, sf::Packet& packet
 		for (sf::Int32 i = 0; i < characterCount; ++i)
 		{
 			sf::Int32 characterIdentifier;
-			sf::Int32 hitpoints;
-			sf::Int32 missileAmmo;
 			sf::Vector2f characterPosition;
-			packet >> characterIdentifier >> characterPosition.x >> characterPosition.y >> hitpoints >> missileAmmo;
+			packet >> characterIdentifier >> characterPosition.x >> characterPosition.y;
 
 			Character* character = mWorld.addCharacter(characterIdentifier, characterPosition.x, characterPosition.y);
 
 			mPlayers[characterIdentifier].reset(new Player(&mSocket, characterIdentifier, nullptr));
 		}
-	} break;
-
-	//
-	case Server::AcceptCoopPartner:
-	{
-		sf::Int32 characterIdentifier;
-		packet >> characterIdentifier;
-
-		mWorld.addCharacter(characterIdentifier);
-		mPlayers[characterIdentifier].reset(new Player(&mSocket, characterIdentifier, getContext().keys2));
-		mLocalPlayerIdentifiers.push_back(characterIdentifier);
 	} break;
 
 	// Player event (like missile fired) occurs

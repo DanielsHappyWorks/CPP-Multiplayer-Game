@@ -24,6 +24,8 @@ struct Direction
 struct CharacterData
 {
 	int hitpoints;
+	float knockback;
+	int missiles;
 	float speed;
 	Textures::ID texture;
 	sf::IntRect textureRect;
