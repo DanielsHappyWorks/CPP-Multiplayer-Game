@@ -277,9 +277,11 @@ void GameServer::updateClientState()
 	updateClientStatePacket << static_cast<sf::Int32>(Server::UpdateClientState);
 	updateClientStatePacket << static_cast<sf::Int32>(mCharacterInfo.size());
 
-	FOREACH(auto character, mCharacterInfo)
+	FOREACH(auto character, mCharacterInfo) {
 		updateClientStatePacket << character.first << character.second.position.x << character.second.position.y << character.second.hitpoints << character.second.missileAmmo << character.second.knockback;
+		std::cout << character.first << " position x: " << character.second.position.x << " position y: " << character.second.position.y << " hitpoints: " << character.second.hitpoints << " missle ammo: " << character.second.missileAmmo << " knockback: " << character.second.knockback << std::endl;
 
+	}
 	sendToAll(updateClientStatePacket);
 }
 
