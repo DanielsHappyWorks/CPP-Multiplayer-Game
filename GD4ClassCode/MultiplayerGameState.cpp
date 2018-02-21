@@ -217,8 +217,10 @@ bool MultiplayerGameState::update(sf::Time dt)
 
 			FOREACH(sf::Int32 identifier, mLocalPlayerIdentifiers)
 			{
-				if (Character* character = mWorld.getCharacter(identifier))
+				if (Character* character = mWorld.getCharacter(identifier)) {
 					positionUpdatePacket << identifier << character->getPosition().x << character->getPosition().y << static_cast<sf::Int32>(character->getHitpoints()) << static_cast<sf::Int32>(character->getMissileAmmo()) << static_cast<float>(character->getKnockback());
+					//std::cout << "Position Up :" << identifier << " x: " << character->getPosition().x << "  y: " << character->getPosition().y << " hp: " << static_cast<sf::Int32>(character->getHitpoints()) << " m: " << static_cast<sf::Int32>(character->getMissileAmmo()) << " k: " << static_cast<float>(character->getKnockback()) << std::endl;
+				}
 			}
 
 			mSocket.send(positionUpdatePacket);
@@ -411,7 +413,12 @@ void MultiplayerGameState::handlePacket(sf::Int32 packetType, sf::Packet& packet
 		{
 			sf::Vector2f characterPosition;
 			sf::Int32 characterIdentifier;
-			packet >> characterIdentifier >> characterPosition.x >> characterPosition.y;
+			sf::Int32 characterHitpoints;
+			sf::Int32 missileAmmo;
+			float characterKnockback;
+			packet >> characterIdentifier >> characterPosition.x >> characterPosition.y >> characterHitpoints >> missileAmmo >> characterKnockback;
+			
+			//std::cout << "Update Client from server:" << characterIdentifier << " x: " << characterPosition.x << "  y: " << characterPosition.y << " hp: " << characterHitpoints << " m: " << missileAmmo << " k: " << characterKnockback << std::endl;
 
 			Character* character = mWorld.getCharacter(characterIdentifier);
 			bool isLocalPlane = std::find(mLocalPlayerIdentifiers.begin(), mLocalPlayerIdentifiers.end(), characterIdentifier) != mLocalPlayerIdentifiers.end();
@@ -419,6 +426,9 @@ void MultiplayerGameState::handlePacket(sf::Int32 packetType, sf::Packet& packet
 			{
 				sf::Vector2f interpolatedPosition = character->getPosition() + (characterPosition - character->getPosition()) * 0.1f;
 				character->setPosition(characterPosition.x, characterPosition.y);
+				character->setHitpoints(characterHitpoints);
+				character->setMissileAmmo(missileAmmo);
+				character->setKnockback(characterKnockback);
 			}
 		}
 	} break;
