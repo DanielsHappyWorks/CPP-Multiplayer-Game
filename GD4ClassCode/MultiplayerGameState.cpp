@@ -139,6 +139,7 @@ bool MultiplayerGameState::update(sf::Time dt)
 
 				// No more players left: Mission failed
 				if (mPlayers.empty())
+					// Check for game end -> all players dead
 					requestStackPush(States::GameOver);
 			}
 			else
@@ -149,7 +150,7 @@ bool MultiplayerGameState::update(sf::Time dt)
 
 		if (!foundLocalPlane && mGameStarted)
 		{
-			requestStackPush(States::GameOver);
+			//requestStackPush(States::GameOver);
 		}
 
 		// Only handle the realtime input if the window has focus and the game is unpaused

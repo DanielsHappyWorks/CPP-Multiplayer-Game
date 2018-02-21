@@ -145,30 +145,6 @@ void GameServer::tick()
 {
 	updateClientState();
 
-	// Check for game end
-	bool lastCharacterStandingCounter = 0;
-	FOREACH(auto pair, mCharacterInfo)
-	{
-		if (pair.second.hitpoints > 0)
-		{
-			lastCharacterStandingCounter++;
-		}	
-	}
-	if (mCharacterInfo.size() >= 2)
-	{
-		if (lastCharacterStandingCounter == 1) {
-			//sf::Packet missionSuccessPacket;
-			//missionSuccessPacket << static_cast<sf::Int32>(Server::MissionSuccess);
-			//sendToAll(missionSuccessPacket);
-		}
-		else if (lastCharacterStandingCounter == 0) {
-			sf::Packet missionSuccessPacket;
-			missionSuccessPacket << static_cast<sf::Int32>(Server::MissionSuccess);
-			sendToAll(missionSuccessPacket);
-		}
-		
-	}
-
 	//Remove IDs of character that have been destroyed (relevant if a client has two, and loses one)
 	/*
 	for (auto itr = mCharacterInfo.begin(); itr != mCharacterInfo.end(); )
