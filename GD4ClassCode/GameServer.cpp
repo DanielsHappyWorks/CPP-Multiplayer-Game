@@ -261,7 +261,7 @@ void GameServer::handleIncomingPacket(sf::Packet& packet, RemotePeer& receivingP
 			float characterKnockback;
 			sf::Vector2f characterPosition;
 			packet >> characterIdentifier >> characterPosition.x >> characterPosition.y >> characterHitpoints >> missileAmmo >> characterKnockback;
-			std::cout <<  characterIdentifier << " position x: " << characterPosition.x << " position y: " << characterPosition.y << " hitpoints: " << characterHitpoints << " missle ammo: " << missileAmmo << " knockback: " << characterKnockback <<std::endl;
+			//std::cout <<  characterIdentifier << " position x: " << characterPosition.x << " position y: " << characterPosition.y << " hitpoints: " << characterHitpoints << " missle ammo: " << missileAmmo << " knockback: " << characterKnockback <<std::endl;
 			mCharacterInfo[characterIdentifier].position = characterPosition;
 			mCharacterInfo[characterIdentifier].hitpoints = characterHitpoints;
 			mCharacterInfo[characterIdentifier].missileAmmo = missileAmmo;
@@ -279,7 +279,7 @@ void GameServer::updateClientState()
 
 	FOREACH(auto character, mCharacterInfo) {
 		updateClientStatePacket << character.first << character.second.position.x << character.second.position.y << character.second.hitpoints << character.second.missileAmmo << character.second.knockback;
-		std::cout << character.first << " position x: " << character.second.position.x << " position y: " << character.second.position.y << " hitpoints: " << character.second.hitpoints << " missle ammo: " << character.second.missileAmmo << " knockback: " << character.second.knockback << std::endl;
+		//std::cout << character.first << " position x: " << character.second.position.x << " position y: " << character.second.position.y << " hitpoints: " << character.second.hitpoints << " missle ammo: " << character.second.missileAmmo << " knockback: " << character.second.knockback << std::endl;
 
 	}
 	sendToAll(updateClientStatePacket);
