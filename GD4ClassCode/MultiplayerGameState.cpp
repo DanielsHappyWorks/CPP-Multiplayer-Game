@@ -411,14 +411,23 @@ void MultiplayerGameState::handlePacket(sf::Int32 packetType, sf::Packet& packet
 		{
 			sf::Vector2f characterPosition;
 			sf::Int32 characterIdentifier;
-			packet >> characterIdentifier >> characterPosition.x >> characterPosition.y;
+			sf::Int32 characterHitpoints;
+			sf::Int32 missileAmmo;
+			float characterKnockback;
+			packet >> characterIdentifier >> characterPosition.x >> characterPosition.y >> characterHitpoints >> missileAmmo >> characterKnockback;
+			
+			std::cout << "Update Client from server:" << characterIdentifier << " x: " << characterPosition.x << "  y: " << characterPosition.y << " hp: " << characterHitpoints << " m: " << missileAmmo << " k: " << characterKnockback << std::endl;
 
 			Character* character = mWorld.getCharacter(characterIdentifier);
 			bool isLocalPlane = std::find(mLocalPlayerIdentifiers.begin(), mLocalPlayerIdentifiers.end(), characterIdentifier) != mLocalPlayerIdentifiers.end();
 			if (character && !isLocalPlane)
 			{
 				sf::Vector2f interpolatedPosition = character->getPosition() + (characterPosition - character->getPosition()) * 0.1f;
+			std::cout << characterIdentifier << " x: " << characterPosition.x << "  y: " << characterPosition.y << " hp: " << characterHitpoints << " m: " << missileAmmo << " k: " << characterKnockback << std::endl;
 				character->setPosition(characterPosition.x, characterPosition.y);
+				character->setHitpoints(characterHitpoints);
+				character->setMissileAmmo(missileAmmo);
+				character->setKnockback(characterKnockback);
 			}
 		}
 	} break;

@@ -7,6 +7,7 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Network/TcpListener.hpp>
 #include <SFML/Network/TcpSocket.hpp>
+#include <iostream>
 
 #include <vector>
 #include <memory>

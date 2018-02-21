@@ -45,7 +45,7 @@ int Entity::getHitpoints() const
 
 void Entity::setHitpoints(int points)
 {
-	assert(points > 0);
+	//assert(points >= 0);
 	mHitpoints = points;
 }
 
