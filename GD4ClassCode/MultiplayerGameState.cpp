@@ -2,6 +2,7 @@
 #include "MusicPlayer.hpp"
 #include "Foreach.hpp"
 #include "Utility.hpp"
+#include <stdio.h>
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Network/IpAddress.hpp>
@@ -136,11 +137,24 @@ bool MultiplayerGameState::update(sf::Time dt)
 			if (!mWorld.getCharacter(itr->first))
 			{
 				itr = mPlayers.erase(itr);
-
-				// No more players left: Mission failed
 				if (mPlayers.empty())
-					// Check for game end -> all players dead
+				{
+					//delete file
+					std::ofstream outputFileTest("highscore.txt");
+					std::string highscore;
+					if (outputFileTest.good()) {
+						remove("highscore.txt");
+					}
+					//output to file
+					std::ofstream outputFile("highscore.txt");
+					std::map<int, int> map = mWorld.getSurvivabilities();
+					for(std::map<int, int>::const_iterator it = map.begin(); it != map.end(); ++it)
+					{
+						outputFile << "Player" << it->first << " survivability = " << it->second << std::endl;
+					}
 					requestStackPush(States::GameOver);
+				}
+					
 			}
 			else
 			{
@@ -219,11 +233,11 @@ bool MultiplayerGameState::update(sf::Time dt)
 			FOREACH(sf::Int32 identifier, mLocalPlayerIdentifiers)
 			{
 				if (Character* character = mWorld.getCharacter(identifier)) {
-					positionUpdatePacket << identifier << character->getPosition().x << character->getPosition().y << static_cast<sf::Int32>(character->getHitpoints()) << static_cast<sf::Int32>(character->getMissileAmmo()) << static_cast<float>(character->getKnockback());
-					//std::cout << "Position Up :" << identifier << " x: " << character->getPosition().x << "  y: " << character->getPosition().y << " hp: " << static_cast<sf::Int32>(character->getHitpoints()) << " m: " << static_cast<sf::Int32>(character->getMissileAmmo()) << " k: " << static_cast<float>(character->getKnockback()) << std::endl;
+					positionUpdatePacket << identifier << character->getPosition().x << character->getPosition().y << static_cast<sf::Int32>(character->getHitpoints()) << static_cast<sf::Int32>(character->getMissileAmmo()) << static_cast<float>(character->getKnockback()) << static_cast<sf::Int32>(character->getSurvivability());
+					//std::cout << "Position Up :" << identifier << " x: " << character->getPosition().x << "  y: " << character->getPosition().y << " hp: " << static_cast<sf::Int32>(character->getHitpoints()) << " m: " << static_cast<sf::Int32>(character->getMissileAmmo()) << " k: " << static_cast<float>(character->getKnockback()) << static_cast<sf::Int32>(character->getSurvivability()) << std::endl;
 				}
 			}
-
+			
 			mSocket.send(positionUpdatePacket);
 			mTickClock.restart();
 		}
@@ -417,9 +431,10 @@ void MultiplayerGameState::handlePacket(sf::Int32 packetType, sf::Packet& packet
 			sf::Int32 characterHitpoints;
 			sf::Int32 missileAmmo;
 			float characterKnockback;
-			packet >> characterIdentifier >> characterPosition.x >> characterPosition.y >> characterHitpoints >> missileAmmo >> characterKnockback;
+			sf::Int32 characterSurvivability;
+			packet >> characterIdentifier >> characterPosition.x >> characterPosition.y >> characterHitpoints >> missileAmmo >> characterKnockback >> characterSurvivability;
 			
-			//std::cout << "Update Client from server:" << characterIdentifier << " x: " << characterPosition.x << "  y: " << characterPosition.y << " hp: " << characterHitpoints << " m: " << missileAmmo << " k: " << characterKnockback << std::endl;
+			//std::cout << "Update Client from server:" << characterIdentifier << " x: " << characterPosition.x << "  y: " << characterPosition.y << " hp: " << characterHitpoints << " m: " << missileAmmo << " k: " << characterKnockback << characterSurvivability << std::endl;
 
 			Character* character = mWorld.getCharacter(characterIdentifier);
 			bool isLocalPlane = std::find(mLocalPlayerIdentifiers.begin(), mLocalPlayerIdentifiers.end(), characterIdentifier) != mLocalPlayerIdentifiers.end();
@@ -430,6 +445,7 @@ void MultiplayerGameState::handlePacket(sf::Int32 packetType, sf::Packet& packet
 				character->setHitpoints(characterHitpoints);
 				character->setMissileAmmo(missileAmmo);
 				character->setKnockback(characterKnockback);
+				character->setSurvivability(characterSurvivability);
 			}
 		}
 	} break;

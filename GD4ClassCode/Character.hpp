@@ -46,6 +46,9 @@ public:
 	void					incrementKnockback(float increment);
 	int						getMissileAmmo() const;
 	void					setMissileAmmo(int ammo);
+	void 					increaseSurvivability(int s);
+	void 					setSurvivability(int s);
+	int						getSurvivability();
 
 	bool					mIsGrounded;
 	sf::Vector2f			mPreviousPositionOnFire;
@@ -82,6 +85,7 @@ private:
 
 	int						mFireRateLevel;
 	int						mMissileAmmo;
+	int						mSurvivability;
 
 	Command 				mDropPickupCommand;
 	float					mTravelledDistance;
@@ -90,6 +94,7 @@ private:
 	TextNode*				mHealthDisplay;
 	TextNode*				mMissileDisplay;
 	TextNode*				mKnockbackDisplay;
+	TextNode*				mSurvivabilityDisplay;
 
 	int						mIdentifier;
 	float					mKnockbackModifier;

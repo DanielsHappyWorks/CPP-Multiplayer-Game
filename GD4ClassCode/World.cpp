@@ -113,6 +113,15 @@ void World::update(sf::Time dt)
 	handleCollisionsPlatform();
 
 	updateSounds();
+
+	if (mNetworkedWorld) {
+		FOREACH(Character* c, mPlayerCharacters)
+		{
+			if (c->getIdentifier()) {
+				mSurvivabilities[c->getIdentifier()] = c->getSurvivability();
+			}
+		}
+	}
 }
 
 void World::draw()
@@ -242,11 +251,17 @@ void World::handleCollisions()
 		//collide with any wall, - use viewBounds to check boundary distance
 		if (characters->getPosition().x < mWorldBounds.left || characters->getPosition().x > mWorldBounds.width || characters->getPosition().y < mWorldBounds.top || characters->getPosition().y > mWorldBounds.height) {
 			//take away health
-			characters->damage(1);
 			if (characters->getHitpoints() > 0) {
+				characters->damage(1);
 				//move player to respawn pos, or destroy 
 				characters->setPosition(500.f, 100.f);
 				characters->setKnockback(40.f);
+				FOREACH(Character* c, mPlayerCharacters)
+				{
+					if (characters->getIdentifier() != c->getIdentifier()) {
+						c->increaseSurvivability(10);
+					}
+				}
 			}
 		}
 	}
@@ -552,4 +567,9 @@ Character* World::addCharacter(int identifier)
 	mPlayerCharacters.push_back(player.get());
 	mSceneLayers[UpperAir]->attachChild(std::move(player));
 	return mPlayerCharacters.back();
+}
+
+std::map<int, int> World::getSurvivabilities() 
+{
+	return mSurvivabilities;
 }

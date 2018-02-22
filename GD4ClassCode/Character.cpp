@@ -46,6 +46,7 @@ Character::Character(Type type, const TextureHolder& textures, const FontHolder&
 	, mPreviousPositionOnFire(this->getPosition())
 	, mShootDirection(1)
 	, mAinmationFrameTimer()
+	, mSurvivability(0)
 {
 	mExplosion.setFrameSize(sf::Vector2i(256, 256));
 	mExplosion.setNumFrames(16);
@@ -77,6 +78,11 @@ Character::Character(Type type, const TextureHolder& textures, const FontHolder&
 	mKnockbackDisplay = KnockbackDisplay.get();
 	attachChild(std::move(KnockbackDisplay));
 
+	std::unique_ptr<TextNode> SurvivabilityDisplay(new TextNode(fonts, ""));
+	SurvivabilityDisplay->setPosition(0.f, 90.f);
+	mSurvivabilityDisplay = SurvivabilityDisplay.get();
+	attachChild(std::move(SurvivabilityDisplay));
+
 	std::unique_ptr<TextNode> healthDisplay(new TextNode(fonts, ""));
 	healthDisplay->setPosition(0.f, 50.f);
 	mHealthDisplay = healthDisplay.get();
@@ -85,7 +91,7 @@ Character::Character(Type type, const TextureHolder& textures, const FontHolder&
 	if (getCategory() == Category::PlayerCharacter)
 	{
 		std::unique_ptr<TextNode> missileDisplay(new TextNode(fonts, ""));
-		missileDisplay->setPosition(0, 90);
+		missileDisplay->setPosition(0, 110);
 		mMissileDisplay = missileDisplay.get();
 		attachChild(std::move(missileDisplay));
 	}
@@ -276,6 +282,17 @@ void Character::incrementKnockback(float increment)
 {
 	mKnockbackModifier += increment;
 }
+int Character::getSurvivability() {
+	return mSurvivability;
+}
+
+void Character::setSurvivability(int s) {
+	mSurvivability = s;
+}
+
+void Character::increaseSurvivability(int s) {
+	mSurvivability = getSurvivability() + s;
+}
 
 void Character::updateMovementPattern(sf::Time dt)
 {
@@ -393,6 +410,14 @@ void Character::updateTexts()
 	else
 		mKnockbackDisplay->setString("Knock: " + toString(getKnockback()-40));
 		mKnockbackDisplay->setRotation(-getRotation());
+
+		//survivability display
+		if (isDestroyed())
+			mSurvivabilityDisplay->setString("");
+		else
+			mSurvivabilityDisplay->setString("Survivability: " + toString(getSurvivability()));
+		mSurvivabilityDisplay->setRotation(-getRotation());
+
 	// Display missiles, if available
 	if (mMissileDisplay)
 	{

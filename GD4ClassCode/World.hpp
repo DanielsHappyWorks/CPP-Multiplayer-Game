@@ -41,6 +41,7 @@ public:
 	Character* addCharacter(int identifier);
 	void removeCharacter(int identifier);
 	void setWorldHeight(float height);
+	std::map<int, int> getSurvivabilities();
 
 	void addPlatform(float x, float y, Platform::Type type);
 	void sortEnemies();
@@ -113,6 +114,7 @@ private:
 	std::vector<Character*>				mPlayerCharacters;
 
 	std::vector<Character*>				mActivePlayers;
+	std::map<int, int>					mSurvivabilities;
 
 	BloomEffect							mBloomEffect;
 

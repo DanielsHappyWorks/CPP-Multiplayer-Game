@@ -45,6 +45,7 @@ private:
 		sf::Int32					hitpoints;
 		sf::Int32                   missileAmmo;
 		float						knockback;
+		sf::Int32                   survivability;
 		std::map<sf::Int32, bool>	realtimeActions;
 	};
 
