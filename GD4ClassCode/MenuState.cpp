@@ -16,7 +16,7 @@ MenuState::MenuState(StateStack& stack, Context context)
 	mBackgroundSprite.setTexture(texture);
 
 	auto playButton = std::make_shared<GUI::Button>(context);
-	playButton->setPosition(420, 300);
+	playButton->setPosition(420, 270);
 	playButton->setText("Play");
 	playButton->setCallback([this]()
 	{
@@ -25,7 +25,7 @@ MenuState::MenuState(StateStack& stack, Context context)
 	});
 
 	auto hostPlayButton = std::make_shared<GUI::Button>(context);
-	hostPlayButton->setPosition(420, 355);
+	hostPlayButton->setPosition(420, 325);
 	hostPlayButton->setText("Host");
 	hostPlayButton->setCallback([this]()
 	{
@@ -34,7 +34,7 @@ MenuState::MenuState(StateStack& stack, Context context)
 	});
 
 	auto joinPlayButton = std::make_shared<GUI::Button>(context);
-	joinPlayButton->setPosition(420, 410);
+	joinPlayButton->setPosition(420, 380);
 	joinPlayButton->setText("Join");
 	joinPlayButton->setCallback([this]()
 	{
@@ -43,7 +43,7 @@ MenuState::MenuState(StateStack& stack, Context context)
 	});
 
 	auto optionsPlayButton = std::make_shared<GUI::Button>(context);
-	optionsPlayButton->setPosition(420, 465);
+	optionsPlayButton->setPosition(420, 435);
 	optionsPlayButton->setText("Options");
 	optionsPlayButton->setCallback([this]()
 	{
@@ -51,15 +51,23 @@ MenuState::MenuState(StateStack& stack, Context context)
 	});
 
 	auto settingsButton = std::make_shared<GUI::Button>(context);
-	settingsButton->setPosition(420, 520);
+	settingsButton->setPosition(420, 490);
 	settingsButton->setText("Controls");
 	settingsButton->setCallback([this]()
 	{
 		requestStackPush(States::Settings);
 	});
+	
+	auto HighScoreButton = std::make_shared<GUI::Button>(context);
+	HighScoreButton->setPosition(420, 545);
+	HighScoreButton->setText("HighScore");
+	HighScoreButton->setCallback([this]()
+	{
+		requestStackPush(States::HighScore);
+	});
 
 	auto exitButton = std::make_shared<GUI::Button>(context);
-	exitButton->setPosition(420, 575);
+	exitButton->setPosition(420, 600);
 	exitButton->setText("Exit");
 	exitButton->setCallback([this]()
 	{
@@ -71,6 +79,7 @@ MenuState::MenuState(StateStack& stack, Context context)
 	mGUIContainer.pack(joinPlayButton);
 	mGUIContainer.pack(optionsPlayButton);
 	mGUIContainer.pack(settingsButton);
+	mGUIContainer.pack(HighScoreButton);
 	mGUIContainer.pack(exitButton);
 
 	//Play menu theme

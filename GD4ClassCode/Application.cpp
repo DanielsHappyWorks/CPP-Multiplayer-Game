@@ -10,6 +10,7 @@
 #include "SettingsState.hpp"
 #include "OptionsState.hpp"
 #include "GameOverState.hpp"
+#include "HighScoreState.hpp"
 
 
 
@@ -126,6 +127,7 @@ void Application::registerStates()
 	mStateStack.registerState<PauseState>(States::NetworkPause, true);
 	mStateStack.registerState<SettingsState>(States::Settings);
 	mStateStack.registerState<OptionsState>(States::Options);
+	mStateStack.registerState<HighScoreState>(States::HighScore);
 	mStateStack.registerState<GameOverState>(States::MissionSuccess1, "Player 1 Wins!");
 	mStateStack.registerState<GameOverState>(States::MissionSuccess2, "Player 2 Wins!");
 	mStateStack.registerState<GameOverState>(States::MissionDraw, "You Suck, Draw!");

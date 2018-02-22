@@ -18,6 +18,7 @@ namespace States
 		MissionDraw,
 		HostGame,
 		JoinGame,
-		Options
+		Options,
+		HighScore
 	};
 }

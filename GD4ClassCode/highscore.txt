@@ -1,2 +1,2 @@
-output goes herePlayer1 survivability = 0
-Player2 survivability = 10
+Player1 survivability = 40
+Player2 survivability = 20
